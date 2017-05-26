@@ -76,7 +76,7 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
 
   private final S3BatchSinkConfig config;
 
-  protected S3BatchSink(S3BatchSinkConfig config) {
+  public S3BatchSink(S3BatchSinkConfig config) {
     super(config);
     this.config = config;
     // update fileSystemProperties to include accessID and accessKey, so prepareRun can only set fileSystemProperties
@@ -129,10 +129,10 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
     boolean encryptionEnabled = enableEncryption != null && enableEncryption.equalsIgnoreCase("True");
 
     if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(ACCESS_CREDENTIALS)) {
-      if (basePath.startsWith("s3a://")) {
+      if (basePath != null && basePath.startsWith("s3a://")) {
         providedProperties.put(S3A_ACCESS_KEY, accessID);
         providedProperties.put(S3A_SECRET_KEY, accessKey);
-      } else if (basePath.startsWith("s3n://")) {
+      } else if (basePath != null && basePath.startsWith("s3n://")) {
         providedProperties.put(S3N_ACCESS_KEY, accessID);
         providedProperties.put(S3N_SECRET_KEY, accessKey);
       }
