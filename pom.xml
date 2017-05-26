@@ -6,7 +6,7 @@
 
   <groupId>co.cask.hydrator</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.7.0-SNAPSHOT</version>
+  <version>1.7.0</version>
 
   <licenses>
     <license>
@@ -91,7 +91,6 @@
       <groupId>co.cask.hydrator</groupId>
       <artifactId>hydrator-common</artifactId>
       <version>${hydrator.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.twitter</groupId>
@@ -108,6 +107,17 @@
           <artifactId>hadoop-hdfs</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro-mapred</artifactId>
+      <classifier>hadoop2</classifier>
+      <version>1.7.7</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.8.8.1</version>
     </dependency>
   </dependencies>
 
@@ -130,7 +140,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_exportcontents>co.cask.hydrator.plugin.*;org.apache.http.*; org.apache.avro.mapreduce;
+              <_exportcontents>co.cask.hydrator.plugin.*;org.apache.http.*; org.apache.avro.mapreduce*;
                 org.apache.orc.*; parquet.avro.*;</_exportcontents>
               <Embed-Dependency>*;inline=false;scope=compile</Embed-Dependency>
               <Embed-Transitive>true</Embed-Transitive>

@@ -18,8 +18,7 @@ Properties
 **referenceName:** This will be used to uniquely identify this source for lineage, annotating metadata, etc.
 
 **authenticationMethod:** Authentication method to access S3. Defaults to Access Credentials.
- User need to have AWS environment only to use IAM role based authentication.
- For IAM, URI scheme should be s3a://. (Macro-enabled)
+ User need to have AWS environment only to use IAM role based authentication. URI scheme should be s3a://. (Macro-enabled)
 
 **accessID:** Access ID of the Amazon S3 instance to connect to. Mandatory if authentication method is Access credentials. (Macro-enabled)
 
@@ -67,7 +66,7 @@ configure Hadoop to use one mapper per MB:
             "authenticationMethod": "Access Credentials",
             "accessKey": "key",
             "accessID": "ID",
-            "path": "s3n://path/to/logs/",
+            "path": "s3a://path/to/logs/",
             "fileRegex": "timefilter",
             "timeTable": "timeTable",
             "maxSplitSize": "1048576",

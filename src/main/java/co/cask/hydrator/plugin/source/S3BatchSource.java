@@ -39,8 +39,8 @@ public class S3BatchSource extends AbstractFileBatchSource {
   private static final String ACCESS_KEY_DESCRIPTION = "Access Key of the Amazon S3 instance to connect to.";
   private static final String AUTHENTICATION_METHOD = "Authentication method to access S3. " +
     "Defaults to Access Credentials. For IAM, URI scheme should be s3a://. (Macro-enabled)";
-  private static final String ACCESS_KEY = "fs.s3n.awsAccessKeyId";
-  private static final String SECRET_KEY = "fs.s3n.awsSecretAccessKey";
+  private static final String ACCESS_KEY = "fs.s3a.access.key";
+  private static final String SECRET_KEY = "fs.s3a.secret.key";
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
   private static final String IAM = "IAM";
 
@@ -59,7 +59,7 @@ public class S3BatchSource extends AbstractFileBatchSource {
     private static final Gson GSON = new Gson();
 
     @Description("Path to file(s) to be read. If a directory is specified, terminate the path name with a '/'. " +
-      "The path must start with s3a:// for IAM based authentication.")
+      "The path must start with s3a://.")
     @Macro
     public String path;
 
@@ -109,10 +109,9 @@ public class S3BatchSource extends AbstractFileBatchSource {
           throw new IllegalArgumentException("The Access Key must be specified if " +
                                                "authentication method is Access Credentials.");
         }
-      } else if (authenticationMethod.equalsIgnoreCase(IAM)) {
-        if (!containsMacro("path") && !path.startsWith("s3a://")) {
-          throw new IllegalArgumentException("Path must start with s3a:// for IAM based authentication.");
-        }
+      }
+      if (!containsMacro("path") && !path.startsWith("s3a://")) {
+        throw new IllegalArgumentException("Path must start with s3a://.");
       }
     }
 

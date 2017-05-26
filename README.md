@@ -1,5 +1,5 @@
-Azure Event Hub
-============
+Amazon S3 Source and Sink
+=========================
 
 <a href="https://cdap-users.herokuapp.com/"><img alt="Join CDAP community" src="https://cdap-users.herokuapp.com/badge.svg?t=amazon-s3-plugins"/></a> [![Build Status](https://travis-ci.org/hydrator/amazon-s3-plugins.svg?branch=master)](https://travis-ci.org/hydrator/amazon-s3-plugins) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) <img alt="CDAP Batch Source" src="https://cdap-users.herokuapp.com/assets/cdap-batch-source.svg"/> <img alt="CDAP Batch Sink" src="https://cdap-users.herokuapp.com/assets/cdap-batch-sink.svg"/> <img src="https://cdap-users.herokuapp.com/assets/cm-available.svg"/>
 
@@ -20,11 +20,11 @@ Deployment
 ----------
 You can deploy your plugins using the CDAP CLI:
 
-    > load artifact <target/azure-event-hub-<version>.jar config-file <target/azure-event-hub-<version>.json>
+    > load artifact <target/amazon-s3-plugins-<version>.jar config-file <target/amazon-s3-plugins-<version>.json>
 
-For example, if your artifact is named 'azure-event-hub-<version>':
+For example, if your artifact is named 'amazon-s3-plugins-<version>':
 
-    > load artifact target/azure-event-hub-<version>.jar config-file target/azure-event-hub-<version>.json
+    > load artifact target/amazon-s3-plugins-<version>.jar config-file target/amazon-s3-plugins-<version>.json
     
 ## Mailing Lists
 

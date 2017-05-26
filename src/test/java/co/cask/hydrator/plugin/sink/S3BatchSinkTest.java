@@ -49,9 +49,9 @@ public class S3BatchSinkTest {
     Map<String, String> fsProperties = GSON.fromJson(s3BatchSinkConfig.fileSystemProperties, MAP_STRING_STRING_TYPE);
     Assert.assertNotNull(fsProperties);
     Assert.assertEquals(3, fsProperties.size());
-    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
-    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
-    Assert.assertEquals(encryptionValue, fsProperties.get("fs.s3n.server-side-encryption-algorithm"));
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3a.access.key"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3a.secret.key"));
+    Assert.assertEquals(encryptionValue, fsProperties.get("fs.s3a.server-side-encryption-algorithm"));
   }
 
   @Test

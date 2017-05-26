@@ -44,8 +44,8 @@ public class S3BatchSourceConfigTest {
     Map<String, String> fsProperties = s3BatchConfig.getFileSystemProperties();
     Assert.assertNotNull(fsProperties);
     Assert.assertEquals(2, fsProperties.size());
-    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
-    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3a.access.key"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3a.secret.key"));
 
 
     // Test extra properties
@@ -54,8 +54,8 @@ public class S3BatchSourceConfigTest {
     fsProperties = s3BatchConfig.getFileSystemProperties();
     Assert.assertNotNull(fsProperties);
     Assert.assertEquals(3, fsProperties.size());
-    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
-    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3a.access.key"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3a.secret.key"));
     Assert.assertEquals("gzip", fsProperties.get("s3.compression"));
   }
 

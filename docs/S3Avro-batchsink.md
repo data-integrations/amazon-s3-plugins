@@ -20,20 +20,20 @@ Properties
 **referenceName:** This will be used to uniquely identify this sink for lineage, annotating metadata, etc.
 
 **authenticationMethod:** Authentication method to access S3. Defaults to Access Credentials.
- User need to have AWS environment only to use IAM role based authentication.
- For IAM, URI scheme should be s3a://. (Macro-enabled)
+ User need to have AWS environment only to use IAM role based authentication. 
+ URI scheme should be s3a://. (Macro-enabled)
 
 **accessID:** Access ID of the Amazon S3 instance to connect to. (Macro-enabled)
 
 **accessKey:** Access Key of the Amazon S3 instance to connect to. (Macro-enabled)
 
-**basePath:** The S3 path where the data is stored. Example: 's3n://logs'. (Macro-enabled)
+**basePath:** The S3 path where the data is stored. Example: 's3a://logs'. (Macro-enabled)
 
 **enableEncryption:** Server side encryption. Defaults to True. Sole supported algorithm is AES256. (Macro-enabled)
 
 **fileSystemProperties:** A JSON string representing a map of properties needed for the
 distributed file system. The property names needed for S3 (*accessID* and *accessKey*)
-will be included as ``'fs.s3n.awsSecretAccessKey'`` and ``'fs.s3n.awsAccessKeyId'``. (Macro-enabled)
+will be included as ``'fs.s3a.access.key'`` and ``'fs.s3a.secret.key'``. (Macro-enabled)
 
 **pathFormat:** The format for the path that will be suffixed to the basePath; for
 example: the format ``'yyyy-MM-dd-HH-mm'`` will create a file path ending in
@@ -47,9 +47,9 @@ Valid values are None, Snappy, and Deflate.
 
 Example
 -------
-This example will use Access Credentials authentication and write to an S3 output located at ``s3n://logs``. It will write data in
+This example will use Access Credentials authentication and write to an S3 output located at ``s3a://logs``. It will write data in
 Avro format compressed using Snappy format and using the given schema. Every time the pipeline 
-runs, a new output directory from the base path (``s3n://logs``) will be created which 
+runs, a new output directory from the base path (``s3a://logs``) will be created which 
 will have the directory name corresponding to the start time in ``yyyy-MM-dd-HH-mm`` format:
 
     {
@@ -59,7 +59,7 @@ will have the directory name corresponding to the start time in ``yyyy-MM-dd-HH-
             "authenticationMethod": "Access Credentials",
             "accessKey": "key",
             "accessID": "ID",
-            "basePath": "s3n://logs",
+            "basePath": "s3a://logs",
             "pathFormat": "yyyy-MM-dd-HH-mm",
             "compressionCodec": "Snappy",
             "schema": "{

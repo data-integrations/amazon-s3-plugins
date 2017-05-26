@@ -46,12 +46,11 @@ import javax.annotation.Nullable;
  */
 public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<StructuredRecord, KEY_OUT, VAL_OUT> {
 
-  public static final String PATH_DESC = "The S3 path where the data is stored. Example: 's3n://logs'.";
+  public static final String PATH_DESC = "The S3 path where the data is stored. Example: 's3a://logs'.";
   private static final String ACCESS_ID_DESCRIPTION = "Access ID of the Amazon S3 instance to connect to.";
   private static final String ACCESS_KEY_DESCRIPTION = "Access Key of the Amazon S3 instance to connect to.";
   private static final String AUTHENTICATION_METHOD = "Authentication method to access S3. " +
-    "Defaults to Access Credentials.For Access Credentials, URI scheme should be s3n://.\n" +
-    "For IAM, URI scheme should be s3a://. (Macro-enabled)";
+    "Defaults to Access Credentials.  URI scheme should be s3a://. (Macro-enabled)";
   private static final String ENABLE_ENCRYPTION = "Server side encryption. Defaults to True." +
     "Sole supported algorithm is AES256.";
   private static final String ENCRYPTION_VALUE = "AES256";
@@ -61,9 +60,8 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
   private static final String FILESYSTEM_PROPERTIES_DESCRIPTION = "A JSON string representing a map of properties " +
     "needed for the distributed file system.";
   private static final String DEFAULT_PATH_FORMAT = "yyyy-MM-dd-HH-mm";
-  private static final String ACCESS_KEY = "fs.s3n.awsAccessKeyId";
-  private static final String SECRET_KEY = "fs.s3n.awsSecretAccessKey";
-  private static final String S3N_ENCRYPTION = "fs.s3n.server-side-encryption-algorithm";
+  private static final String ACCESS_KEY = "fs.s3a.access.key";
+  private static final String SECRET_KEY = "fs.s3a.secret.key";
   private static final String S3A_ENCRYPTION = "fs.s3a.server-side-encryption-algorithm";
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
   private static final String IAM = "IAM";
@@ -126,10 +124,8 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
     if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(ACCESS_CREDENTIALS)) {
       providedProperties.put(ACCESS_KEY, accessID);
       providedProperties.put(SECRET_KEY, accessKey);
-      if (encryptionEnabled) {
-        providedProperties.put(S3N_ENCRYPTION, ENCRYPTION_VALUE);
-      }
-    } else if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(IAM) && encryptionEnabled) {
+    }
+    if (encryptionEnabled) {
       providedProperties.put(S3A_ENCRYPTION, ENCRYPTION_VALUE);
     }
     return GSON.toJson(providedProperties);
@@ -221,11 +217,12 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
           throw new IllegalArgumentException("The Access Key must be specified if " +
                                                "authentication method is Access Credentials.");
         }
-      } else if (authenticationMethod.equalsIgnoreCase(IAM)) {
-        if (!basePath.startsWith("s3a://")) {
-          throw new IllegalArgumentException("Path must start with s3a:// for IAM based authentication.");
-        }
       }
+
+      if (!basePath.startsWith("s3a://")) {
+        throw new IllegalArgumentException("Path must start with s3a://.");
+      }
+
       if (schema != null) {
         try {
           Schema.parseJson(schema);
