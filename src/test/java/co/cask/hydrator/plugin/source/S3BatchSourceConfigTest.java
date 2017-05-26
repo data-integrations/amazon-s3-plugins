@@ -38,8 +38,9 @@ public class S3BatchSourceConfigTest {
     String accessID = "accessID";
     String accessKey = "accessKey";
     String authenticationMethod = "Access Credentials";
+    String path = "s3a://logs/";
     // Test default properties
-    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig(accessID, accessKey,
+    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig(path, accessID, accessKey,
                                                                                 authenticationMethod);
     Map<String, String> fsProperties = s3BatchConfig.getFileSystemProperties();
     Assert.assertNotNull(fsProperties);
@@ -49,7 +50,7 @@ public class S3BatchSourceConfigTest {
 
 
     // Test extra properties
-    s3BatchConfig = new S3BatchSource.S3BatchConfig(accessID, accessKey, authenticationMethod,
+    s3BatchConfig = new S3BatchSource.S3BatchConfig(path, accessID, accessKey, authenticationMethod,
                                                     ImmutableMap.of("s3.compression", "gzip"));
     fsProperties = s3BatchConfig.getFileSystemProperties();
     Assert.assertNotNull(fsProperties);
@@ -60,9 +61,36 @@ public class S3BatchSourceConfigTest {
   }
 
   @Test
+  public void testFileSystemPropertiesS3N() {
+    String accessID = "accessID";
+    String accessKey = "accessKey";
+    String authenticationMethod = "Access Credentials";
+    String path = "s3n://logs/";
+    // Test default properties
+    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig(path, accessID, accessKey,
+                                                                                authenticationMethod);
+    Map<String, String> fsProperties = s3BatchConfig.getFileSystemProperties();
+    Assert.assertNotNull(fsProperties);
+    Assert.assertEquals(2, fsProperties.size());
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
+
+
+    // Test extra properties
+    s3BatchConfig = new S3BatchSource.S3BatchConfig(path, accessID, accessKey, authenticationMethod,
+                                                    ImmutableMap.of("s3.compression", "gzip"));
+    fsProperties = s3BatchConfig.getFileSystemProperties();
+    Assert.assertNotNull(fsProperties);
+    Assert.assertEquals(3, fsProperties.size());
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
+    Assert.assertEquals("gzip", fsProperties.get("s3.compression"));
+  }
+
+  @Test
   public void testFileSystemPropertiesForIAM() {
     String authenticationMethod = "IAM";
-    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig(null, null,
+    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig("", null, null,
                                                                                 authenticationMethod);
     Map<String, String> fsProperties = s3BatchConfig.getFileSystemProperties();
     Assert.assertEquals(0, fsProperties.size());

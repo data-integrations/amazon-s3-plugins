@@ -36,7 +36,7 @@ public class S3BatchSinkTest {
   public void testFileSystemProperties() {
     String accessID = "accessID";
     String accessKey = "accessKey";
-    String path = "/path";
+    String path = "s3a://path";
     String authenticationMethod = "Access Credentials";
     String enableEncryption = "True";
     String encryptionValue = "AES256";
@@ -58,7 +58,7 @@ public class S3BatchSinkTest {
   public void testFileSystemPropertiesForIAMWithEncryption() {
     String accessID = null;
     String accessKey = null;
-    String path = "/path";
+    String path = "s3a://path";
     String authenticationMethod = "IAM";
     String enableEncryption = "True";
     String encryptionValue = "AES256";
@@ -70,6 +70,46 @@ public class S3BatchSinkTest {
     Map<String, String> fsProperties = GSON.fromJson(s3BatchSinkConfig.fileSystemProperties, MAP_STRING_STRING_TYPE);
     Assert.assertEquals(1, fsProperties.size());
     Assert.assertEquals(encryptionValue, fsProperties.get("fs.s3a.server-side-encryption-algorithm"));
+  }
+
+  @Test
+  public void testFileSystemPropertiesS3N() {
+    String accessID = "accessID";
+    String accessKey = "accessKey";
+    String path = "s3n://path";
+    String authenticationMethod = "Access Credentials";
+    String enableEncryption = "True";
+    String encryptionValue = "AES256";
+    // Test default properties
+    S3AvroBatchSink.S3AvroSinkConfig s3AvroSinkConfig =
+      new S3AvroBatchSink.S3AvroSinkConfig("s3test", path, accessID, accessKey, null, null, null,
+                                           authenticationMethod, enableEncryption);
+    S3AvroBatchSink s3AvroBatchSink = new S3AvroBatchSink(s3AvroSinkConfig);
+    S3BatchSink.S3BatchSinkConfig s3BatchSinkConfig = s3AvroBatchSink.getConfig();
+    Map<String, String> fsProperties = GSON.fromJson(s3BatchSinkConfig.fileSystemProperties, MAP_STRING_STRING_TYPE);
+    Assert.assertNotNull(fsProperties);
+    Assert.assertEquals(3, fsProperties.size());
+    Assert.assertEquals(accessID, fsProperties.get("fs.s3n.awsAccessKeyId"));
+    Assert.assertEquals(accessKey, fsProperties.get("fs.s3n.awsSecretAccessKey"));
+    Assert.assertEquals(encryptionValue, fsProperties.get("fs.s3n.server-side-encryption-algorithm"));
+  }
+
+  @Test
+  public void testFileSystemPropertiesForIAMWithEncryptionS3N() {
+    String accessID = null;
+    String accessKey = null;
+    String path = "s3n://path";
+    String authenticationMethod = "IAM";
+    String enableEncryption = "True";
+    String encryptionValue = "AES256";
+    S3AvroBatchSink.S3AvroSinkConfig s3AvroSinkConfig =
+      new S3AvroBatchSink.S3AvroSinkConfig("s3iamtest", path, accessID, accessKey, null, null, null,
+                                           authenticationMethod, enableEncryption);
+    S3AvroBatchSink s3AvroBatchSink = new S3AvroBatchSink(s3AvroSinkConfig);
+    S3BatchSink.S3BatchSinkConfig s3BatchSinkConfig = s3AvroBatchSink.getConfig();
+    Map<String, String> fsProperties = GSON.fromJson(s3BatchSinkConfig.fileSystemProperties, MAP_STRING_STRING_TYPE);
+    Assert.assertEquals(1, fsProperties.size());
+    Assert.assertEquals(encryptionValue, fsProperties.get("fs.s3n.server-side-encryption-algorithm"));
   }
 
   @Test
