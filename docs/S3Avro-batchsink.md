@@ -21,7 +21,7 @@ Properties
 
 **authenticationMethod:** Authentication method to access S3. Defaults to Access Credentials.
  User need to have AWS environment only to use IAM role based authentication. 
- URI scheme should be s3a://. (Macro-enabled)
+  URI scheme should be s3a:// for S3AFileSystem or s3n:// for S3NativeFileSystem. (Macro-enabled)
 
 **accessID:** Access ID of the Amazon S3 instance to connect to. (Macro-enabled)
 
@@ -33,7 +33,8 @@ Properties
 
 **fileSystemProperties:** A JSON string representing a map of properties needed for the
 distributed file system. The property names needed for S3 (*accessID* and *accessKey*)
-will be included as ``'fs.s3a.access.key'`` and ``'fs.s3a.secret.key'``. (Macro-enabled)
+will be included as ``'fs.s3a.access.key'`` and ``'fs.s3a.secret.key'`` for S3AFileSystem. 
+For S3NativeFileSystem ``'fs.s3n.awsSecretAccessKey'`` and ``'fs.s3n.awsAccessKeyId'`` will be used. (Macro-enabled)
 
 **pathFormat:** The format for the path that will be suffixed to the basePath; for
 example: the format ``'yyyy-MM-dd-HH-mm'`` will create a file path ending in

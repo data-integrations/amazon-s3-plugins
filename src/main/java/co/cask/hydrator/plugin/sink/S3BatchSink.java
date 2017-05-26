@@ -46,11 +46,12 @@ import javax.annotation.Nullable;
  */
 public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<StructuredRecord, KEY_OUT, VAL_OUT> {
 
-  public static final String PATH_DESC = "The S3 path where the data is stored. Example: 's3a://logs'.";
+  public static final String PATH_DESC = "The S3 path where the data is stored. Example: 's3a://logs' for " +
+    "S3AFileSystem or 's3n://logs' for S3NativeFileSystem.";
   private static final String ACCESS_ID_DESCRIPTION = "Access ID of the Amazon S3 instance to connect to.";
   private static final String ACCESS_KEY_DESCRIPTION = "Access Key of the Amazon S3 instance to connect to.";
   private static final String AUTHENTICATION_METHOD = "Authentication method to access S3. " +
-    "Defaults to Access Credentials.  URI scheme should be s3a://. (Macro-enabled)";
+    "Defaults to Access Credentials.  URI scheme should be s3a:// or s3n://. (Macro-enabled)";
   private static final String ENABLE_ENCRYPTION = "Server side encryption. Defaults to True." +
     "Sole supported algorithm is AES256.";
   private static final String ENCRYPTION_VALUE = "AES256";
@@ -60,9 +61,13 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
   private static final String FILESYSTEM_PROPERTIES_DESCRIPTION = "A JSON string representing a map of properties " +
     "needed for the distributed file system.";
   private static final String DEFAULT_PATH_FORMAT = "yyyy-MM-dd-HH-mm";
-  private static final String ACCESS_KEY = "fs.s3a.access.key";
-  private static final String SECRET_KEY = "fs.s3a.secret.key";
+  private static final String S3A_ACCESS_KEY = "fs.s3a.access.key";
+  private static final String S3A_SECRET_KEY = "fs.s3a.secret.key";
   private static final String S3A_ENCRYPTION = "fs.s3a.server-side-encryption-algorithm";
+
+  private static final String S3N_ACCESS_KEY = "fs.s3n.awsAccessKeyId";
+  private static final String S3N_SECRET_KEY = "fs.s3n.awsSecretAccessKey";
+  private static final String S3N_ENCRYPTION = "fs.s3n.server-side-encryption-algorithm";
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
   private static final String IAM = "IAM";
   private static final Gson GSON = new Gson();
@@ -79,7 +84,8 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
     // do not create file system properties if macros were provided unless in a test case
     if (!this.config.containsMacro("fileSystemProperties") && !this.config.containsMacro("accessID") &&
       !this.config.containsMacro("accessKey")) {
-      this.config.fileSystemProperties = updateFileSystemProperties(this.config.fileSystemProperties,
+      this.config.fileSystemProperties = updateFileSystemProperties(this.config.basePath,
+                                                                    this.config.fileSystemProperties,
                                                                     this.config.accessID, this.config.accessKey,
                                                                     this.config.authenticationMethod,
                                                                     this.config.enableEncryption);
@@ -111,8 +117,8 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
    */
   protected abstract OutputFormatProvider createOutputFormatProvider(BatchSinkContext context);
 
-  private static String updateFileSystemProperties(@Nullable String fileSystemProperties, String accessID,
-                                                   String accessKey, String authenticationMethod,
+  private static String updateFileSystemProperties(String basePath, @Nullable String fileSystemProperties,
+                                                   String accessID, String accessKey, String authenticationMethod,
                                                    String enableEncryption) {
     Map<String, String> providedProperties;
     if (fileSystemProperties == null) {
@@ -121,12 +127,24 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
       providedProperties = GSON.fromJson(fileSystemProperties, MAP_STRING_STRING_TYPE);
     }
     boolean encryptionEnabled = enableEncryption != null && enableEncryption.equalsIgnoreCase("True");
+
     if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(ACCESS_CREDENTIALS)) {
-      providedProperties.put(ACCESS_KEY, accessID);
-      providedProperties.put(SECRET_KEY, accessKey);
+      if (basePath.startsWith("s3a://")) {
+        providedProperties.put(S3A_ACCESS_KEY, accessID);
+        providedProperties.put(S3A_SECRET_KEY, accessKey);
+      } else if (basePath.startsWith("s3n://")) {
+        providedProperties.put(S3N_ACCESS_KEY, accessID);
+        providedProperties.put(S3N_SECRET_KEY, accessKey);
+      }
     }
+
     if (encryptionEnabled) {
-      providedProperties.put(S3A_ENCRYPTION, ENCRYPTION_VALUE);
+      if (basePath.startsWith("s3a://")) {
+        providedProperties.put(S3A_ENCRYPTION, ENCRYPTION_VALUE);
+      } else if (basePath.startsWith("s3n://")) {
+        providedProperties.put(S3N_ENCRYPTION, ENCRYPTION_VALUE);
+      }
+
     }
     return GSON.toJson(providedProperties);
   }
@@ -189,7 +207,7 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
       super("");
       this.pathFormat = DEFAULT_PATH_FORMAT;
       this.authenticationMethod = ACCESS_CREDENTIALS;
-      this.fileSystemProperties = updateFileSystemProperties(null, accessID, accessKey, authenticationMethod,
+      this.fileSystemProperties = updateFileSystemProperties(basePath, null, accessID, accessKey, authenticationMethod,
                                                              enableEncryption);
     }
 
@@ -203,7 +221,7 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
       this.accessKey = accessKey;
       this.authenticationMethod = authenticationMethod;
       this.enableEncryption = enableEncryption;
-      this.fileSystemProperties = updateFileSystemProperties(fileSystemProperties, accessID, accessKey,
+      this.fileSystemProperties = updateFileSystemProperties(basePath, fileSystemProperties, accessID, accessKey,
                                                              authenticationMethod, enableEncryption);
     }
 
@@ -219,8 +237,8 @@ public abstract class S3BatchSink<KEY_OUT, VAL_OUT> extends ReferenceBatchSink<S
         }
       }
 
-      if (!basePath.startsWith("s3a://")) {
-        throw new IllegalArgumentException("Path must start with s3a://.");
+      if (!basePath.startsWith("s3a://") && !basePath.startsWith("s3n://")) {
+        throw new IllegalArgumentException("Path must start with s3a:// or s3n://.");
       }
 
       if (schema != null) {
