@@ -38,7 +38,7 @@ public class S3BatchSource extends AbstractFileBatchSource {
   private static final String ACCESS_ID_DESCRIPTION = "Access ID of the Amazon S3 instance to connect to.";
   private static final String ACCESS_KEY_DESCRIPTION = "Access Key of the Amazon S3 instance to connect to.";
   private static final String AUTHENTICATION_METHOD = "Authentication method to access S3. " +
-    "Defaults to Access Credentials. For IAM, URI scheme should be s3a:// for S3AFileSystem or s3n:// for " +
+    "Defaults to Access Credentials. URI scheme should be s3a:// for S3AFileSystem or s3n:// for " +
     "S3NativeFileSystem. (Macro-enabled)";
   private static final String S3A_ACCESS_KEY = "fs.s3a.access.key";
   private static final String S3A_SECRET_KEY = "fs.s3a.secret.key";
