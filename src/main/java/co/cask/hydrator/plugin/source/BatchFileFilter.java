@@ -145,6 +145,7 @@ public class BatchFileFilter extends Configured implements PathFilter {
       }
       regex = Pattern.compile(input);
     }
+    
     lastRead = conf.get(FileBatchSource.LAST_TIME_READ, "-1");
 
     if (!lastRead.equals("-1")) {
