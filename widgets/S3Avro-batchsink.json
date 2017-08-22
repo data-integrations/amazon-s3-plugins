@@ -1,8 +1,9 @@
 
 {
   "metadata": {
-    "spec-version": "1.0"
+    "spec-version": "1.5"
   },
+  "display-name": "Amazon S3 Avro",
   "configuration-groups": [
     {
       "label": "S3 Avro Batch Sink",

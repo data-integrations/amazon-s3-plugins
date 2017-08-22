@@ -1,7 +1,8 @@
 {
   "metadata": {
-    "spec-version": "1.0"
+    "spec-version": "1.5"
   },
+  "display-name": "Amazon S3",
   "configuration-groups": [
     {
       "label": "S3 Batch Source",
