@@ -1,8 +1,9 @@
 
 {
   "metadata": {
-    "spec-version": "1.0"
+    "spec-version": "1.5"
   },
+  "display-name": "Amazon S3 Parquet",
   "configuration-groups": [
     {
       "label": "S3 Parquet Batch Sink",
