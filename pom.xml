@@ -58,8 +58,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cdap.version>4.3.0-SNAPSHOT</cdap.version>
-    <hydrator.version>1.8.0-SNAPSHOT</hydrator.version>
+    <cdap.version>4.3.0</cdap.version>
+    <hydrator.version>1.8.0</hydrator.version>
     <widgets.dir>widgets</widgets.dir>
     <docs.dir>docs</docs.dir>
     <!-- properties for script build step that creates the config files for the artifacts -->
