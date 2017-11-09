@@ -124,12 +124,14 @@ public class S3BatchSource extends AbstractFileBatchSource {
     protected Map<String, String> getFileSystemProperties() {
       Map<String, String> properties = new HashMap<>(super.getFileSystemProperties());
       if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(ACCESS_CREDENTIALS)) {
-        if (path.startsWith("s3a://")) {
-          properties.put(S3A_ACCESS_KEY, accessID);
-          properties.put(S3A_SECRET_KEY, accessKey);
-        } else if (path.startsWith("s3n://")) {
-          properties.put(S3N_ACCESS_KEY, accessID);
-          properties.put(S3N_SECRET_KEY, accessKey);
+        if (!containsMacro("path")) {
+          if (path.startsWith("s3a://")) {
+            properties.put(S3A_ACCESS_KEY, accessID);
+            properties.put(S3A_SECRET_KEY, accessKey);
+          } else if (path.startsWith("s3n://")) {
+            properties.put(S3N_ACCESS_KEY, accessID);
+            properties.put(S3N_SECRET_KEY, accessKey);
+          }
         }
       }
       return properties;
