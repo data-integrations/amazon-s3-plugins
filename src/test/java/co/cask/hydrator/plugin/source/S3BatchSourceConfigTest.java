@@ -88,6 +88,20 @@ public class S3BatchSourceConfigTest {
   }
 
   @Test
+  public void testFileSystemPropertiesMacro() {
+    String accessID = "accessID";
+    String accessKey = "accessKey";
+    String authenticationMethod = "Access Credentials";
+    String path = "${my-macro}";
+    // Test default properties
+    S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig(path, accessID, accessKey,
+                                                                                authenticationMethod);
+    Map<String, String> fsProperties = s3BatchConfig.getFileSystemProperties();
+    Assert.assertNotNull(fsProperties);
+    Assert.assertEquals(0, fsProperties.size());
+  }
+
+  @Test
   public void testFileSystemPropertiesForIAM() {
     String authenticationMethod = "IAM";
     S3BatchSource.S3BatchConfig s3BatchConfig = new S3BatchSource.S3BatchConfig("", null, null,

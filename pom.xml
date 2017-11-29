@@ -6,7 +6,7 @@
 
   <groupId>co.cask.hydrator</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.7.0</version>
+  <version>1.8.0</version>
 
   <licenses>
     <license>
@@ -58,12 +58,12 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cdap.version>4.2.0-SNAPSHOT</cdap.version>
-    <hydrator.version>1.7.0-SNAPSHOT</hydrator.version>
+    <cdap.version>4.3.0</cdap.version>
+    <hydrator.version>1.8.0</hydrator.version>
     <widgets.dir>widgets</widgets.dir>
     <docs.dir>docs</docs.dir>
     <!-- properties for script build step that creates the config files for the artifacts -->
-    <app.parents>system:cdap-data-pipeline[4.1.0,4.3.0-SNAPSHOT),system:cdap-data-streams[4.1.0,4.3.0-SNAPSHOT)
+    <app.parents>system:cdap-data-pipeline[4.3.0-SNAPSHOT,5.0.0-SNAPSHOT),system:cdap-data-streams[4.3.0-SNAPSHOT,5.0.0-SNAPSHOT)
     </app.parents>
     <main.basedir>${project.basedir}</main.basedir>
   </properties>
