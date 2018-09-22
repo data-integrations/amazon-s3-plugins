@@ -76,7 +76,7 @@ public abstract class AbstractFileBatchSource<T extends FileSourceConfig>
   private static final Gson GSON = new Gson();
   private static final Type ARRAYLIST_DATE_TYPE = new TypeToken<ArrayList<Date>>() { }.getType();
 
-  private static final Logger LOG = LoggerFactory.getLogger(FileBatchSource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFileBatchSource.class);
   private final T config;
   private KeyValueTable table;
   private Date prevHour;
