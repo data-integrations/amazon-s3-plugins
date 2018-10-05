@@ -27,20 +27,14 @@ Properties
 **path:** Path to file(s) to be read. If a directory is specified,
 terminate the path name with a '/'. The path uses filename expansion (globbing) to read files. (Macro-enabled)
 
+**Format:** Format of the data to read.
+The format must be one of 'avro', 'blob', 'csv', 'delimited', 'json', 'parquet', 'text', or 'tsv'.
+If the format is 'blob', every input file will be read into a separate record.
+The 'blob' format also requires a schema that contains a field named 'body' of type 'bytes'.
+If the format is 'text', the schema must contain a field named 'body' of type 'string'. (Macro-enabled)
+
 **fileRegex:** Regex to filter out files in the path. It accepts regular expression which is applied to the complete
 path and returns the list of files that match the specified pattern.
-To use the *TimeFilter*, input ``timefilter``. The TimeFilter assumes that it is
-reading in files with the File log naming convention of *YYYY-MM-DD-HH-mm-SS-Tag*.
-The TimeFilter reads in files from the previous hour if the field ``timeTable`` is
-left blank. If it is currently *2015-06-16-15* (June 16th 2015, 3pm), it will read
-in files that contain *2015-06-16-14* in the filename. If the field ``timeTable`` is
-present, then it will read in files that have not yet been read. (Macro-enabled)
-
-**timeTable:** Name of the Table that keeps track of the last time files
-were read in. (Macro-enabled)
-
-**inputFormatClass:** Name of the input format class, which must be a
-subclass of FileInputFormat. Defaults to TextInputFormat. (Macro-enabled)
 
 **maxSplitSize:** Maximum split-size for each mapper in the MapReduce Job. Defaults to 128MB. (Macro-enabled)
 
