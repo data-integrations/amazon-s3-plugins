@@ -6,7 +6,7 @@
   "display-name": "Amazon S3",
   "configuration-groups": [
     {
-      "label": "S3 Avro Batch Sink",
+      "label": "Basic",
       "properties": [
         {
           "widget-type": "textbox",
@@ -14,36 +14,20 @@
           "name": "referenceName"
         },
         {
-          "widget-type": "select",
-          "label": "Authentication Method",
-          "name": "authenticationMethod",
+          "widget-type": "textbox",
+          "label": "Path",
+          "name": "path",
           "widget-attributes": {
-            "values": [
-              "Access Credentials",
-              "IAM"
-            ],
-            "default": "Access Credentials"
+            "placeholder": "s3a://<bucket>/path/to/output"
           }
         },
         {
           "widget-type": "textbox",
-          "label": "Access ID",
-          "name": "accessID"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Access Key",
-          "name": "accessKey"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Path",
-          "name": "path"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Directory Time Format",
-          "name": "suffix"
+          "label": "Path Suffix",
+          "name": "suffix",
+          "widget-attributes" : {
+            "default": "yyyy-MM-dd-HH-mm"
+          }
         },
         {
           "widget-type": "select",
@@ -64,24 +48,79 @@
         {
           "widget-type": "textbox",
           "label": "Delimiter",
-          "name": "delimiter"
-        },
-        {
-          "widget-type": "select",
-          "label": "Server Side Encryption",
-          "name": "enableEncryption",
+          "name": "delimiter",
           "widget-attributes": {
-            "values": [
-              "True",
-              "False"
-            ],
-            "default": "True"
+            "placeholder": "Delimiter if the format is 'delimited'"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Credentials",
+      "properties": [
+        {
+          "widget-type": "radio-group",
+          "label": "Authentication Method",
+          "name": "authenticationMethod",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "Access Credentials",
+            "options": [
+              {
+                "id": "Access Credentials",
+                "label": "Access Credentials"
+              },
+              {
+                "id": "IAM",
+                "label": "IAM"
+              }
+            ]
           }
         },
+        {
+          "widget-type": "textbox",
+          "label": "Access ID",
+          "name": "accessID",
+          "widget-attributes": {
+            "placeholder": "Amazon Access ID"
+          }
+        },
+        {
+          "widget-type": "password",
+          "label": "Access Key",
+          "name": "accessKey",
+          "widget-attributes": {
+            "placeholder": "Amazon Access Key"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "properties": [
         {
           "widget-type": "json-editor",
           "label": "File System Properties",
           "name": "fileSystemProperties"
+        },
+        {
+          "widget-type": "select",
+          "label": "Enable Encryption",
+          "name": "enableEncryption",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "true",
+            "options": [
+              {
+                "id": "true",
+                "label": "True"
+              },
+              {
+                "id": "false",
+                "label": "False"
+              }
+            ]
+          }
         }
       ]
     }
@@ -98,8 +137,7 @@
           "float",
           "double",
           "bytes",
-          "string",
-          "map<string, string>"
+          "string"
         ],
         "schema-default-type": "string"
       }
