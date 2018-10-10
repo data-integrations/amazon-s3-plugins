@@ -3,7 +3,7 @@
   "metadata": {
     "spec-version": "1.5"
   },
-  "display-name": "Amazon S3 Avro",
+  "display-name": "Amazon S3",
   "configuration-groups": [
     {
       "label": "S3 Avro Batch Sink",
@@ -37,13 +37,34 @@
         },
         {
           "widget-type": "textbox",
-          "label": "Base Path",
-          "name": "basePath"
+          "label": "Path",
+          "name": "path"
         },
         {
           "widget-type": "textbox",
-          "label": "Path Format",
-          "name": "pathFormat"
+          "label": "Directory Time Format",
+          "name": "suffix"
+        },
+        {
+          "widget-type": "select",
+          "label": "Format",
+          "name": "format",
+          "widget-attributes": {
+            "values": [
+              "avro",
+              "csv",
+              "delimited",
+              "json",
+              "parquet",
+              "tsv"
+            ],
+            "default": "json"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Delimiter",
+          "name": "delimiter"
         },
         {
           "widget-type": "select",
@@ -55,19 +76,6 @@
               "False"
             ],
             "default": "True"
-          }
-        },
-        {
-          "widget-type": "select",
-          "label": "Compression Codec",
-          "name": "compressionCodec",
-          "widget-attributes": {
-            "values": [
-              "None",
-              "Snappy",
-              "Deflate"
-            ],
-            "default": "None"
           }
         },
         {
