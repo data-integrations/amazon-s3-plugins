@@ -20,9 +20,12 @@ import co.cask.cdap.api.annotation.Description;
 import co.cask.cdap.api.annotation.Macro;
 import co.cask.cdap.api.annotation.Name;
 import co.cask.cdap.api.annotation.Plugin;
+import co.cask.cdap.api.data.schema.Schema;
+import co.cask.cdap.api.plugin.EndpointPluginContext;
 import co.cask.cdap.etl.api.batch.BatchSource;
 import co.cask.cdap.etl.api.batch.BatchSourceContext;
 import co.cask.hydrator.common.LineageRecorder;
+import co.cask.hydrator.format.FileFormat;
 import co.cask.hydrator.format.input.PathTrackingInputFormat;
 import co.cask.hydrator.format.plugin.AbstractFileSource;
 import co.cask.hydrator.format.plugin.AbstractFileSourceConfig;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.ws.rs.Path;
 
 /**
  * A {@link BatchSource} that reads from Amazon S3.
@@ -82,6 +86,23 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
   }
 
   /**
+   * Endpoint method to get the output schema of a source.
+   *
+   * @param config configuration for the source
+   * @param pluginContext context to create plugins
+   * @return schema of fields
+   */
+  @Path("getSchema")
+  public Schema getSchema(S3BatchConfig config, EndpointPluginContext pluginContext) {
+    FileFormat fileFormat = config.getFormat();
+    if (fileFormat == null) {
+      return config.getSchema();
+    }
+    Schema schema = fileFormat.getSchema(config.getPathField());
+    return schema == null ? config.getSchema() : schema;
+  }
+
+  /**
    * Config class that contains properties needed for the S3 source.
    */
   @SuppressWarnings("unused")
@@ -108,7 +129,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Nullable
     @Description("Authentication method to access S3. " +
       "Defaults to Access Credentials. URI scheme should be s3a:// for S3AFileSystem or s3n:// for " +
-      "S3NativeFileSystem. (Macro-enabled)")
+      "S3NativeFileSystem.")
     private String authenticationMethod;
 
     @Macro

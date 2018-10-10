@@ -5,44 +5,23 @@
   "display-name": "Amazon S3",
   "configuration-groups": [
     {
-      "label": "S3 Batch Source",
+      "label": "Basic",
       "properties": [
         {
           "widget-type": "textbox",
           "label": "Reference Name",
-          "name": "referenceName"
-        },
-        {
-          "widget-type": "select",
-          "label": "Authentication Method",
-          "name": "authenticationMethod",
+          "name": "referenceName",
           "widget-attributes": {
-            "values": [
-              "Access Credentials",
-              "IAM"
-            ],
-            "default": "Access Credentials"
+            "placeholder": "Name used to identify this source for lineage"
           }
         },
         {
           "widget-type": "textbox",
-          "label": "Access ID",
-          "name": "accessID"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Access Key",
-          "name": "accessKey"
-        },
-        {
-          "widget-type": "textbox",
           "label": "Path",
-          "name": "path"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Regex Path Filter",
-          "name": "fileRegex"
+          "name": "path",
+          "widget-attributes": {
+            "placeholder": "s3a://<bucket>/path/to/input"
+          }
         },
         {
           "widget-type": "select",
@@ -60,83 +39,156 @@
               "tsv"
             ],
             "default": "text"
+          },
+          "plugin-function": {
+            "method": "POST",
+            "widget": "outputSchema",
+            "output-property": "schema",
+            "plugin-method": "getSchema"
           }
         },
         {
           "widget-type": "textbox",
           "label": "Delimiter",
-          "name": "delimiter"
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Maximum Split Size",
-          "name": "maxSplitSize"
-        },
-        {
-          "widget-type": "select",
-          "label": "Read files recursively",
-          "name": "recursive",
+          "name": "delimiter",
           "widget-attributes": {
-            "values": [
-              "true",
-              "false"
-            ],
-            "default": "false"
+            "placeholder": "Delimiter if the format is 'delimited'"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Credentials",
+      "properties": [
+        {
+          "widget-type": "radio-group",
+          "label": "Authentication Method",
+          "name": "authenticationMethod",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "Access Credentials",
+            "options": [
+              {
+                "id": "Access Credentials",
+                "label": "Access Credentials"
+              },
+              {
+                "id": "IAM",
+                "label": "IAM"
+              }
+            ]
           }
         },
         {
-          "label": "Output Schema Properties",
-          "properties": [
-            {
-              "widget-type": "textbox",
-              "label": "Path Field",
-              "name": "pathField",
-              "plugin-function": {
-                "method": "POST",
-                "widget": "outputSchema",
-                "output-property": "schema",
-                "plugin-method": "getSchema"
-              }
-            },
-            {
-              "widget-type": "select",
-              "label": "Use File Name as Path Field",
-              "name": "filenameOnly",
-              "widget-attributes": {
-                "values": [
-                  "true",
-                  "false"
-                ],
-                "default": "false"
-              }
-            }
-          ]
+          "widget-type": "textbox",
+          "label": "Access ID",
+          "name": "accessID",
+          "widget-attributes": {
+            "placeholder": "Amazon Access ID"
+          }
         },
         {
-          "label": "Advanced Properties",
-          "properties": [
-            {
-              "widget-type": "json-editor",
-              "label": "File System Properties",
-              "name": "fileSystemProperties"
-            },
-            {
-              "widget-type": "select",
-              "label": "Ignore Non-Existing Folders",
-              "name": "ignoreNonExistingFolders",
-              "widget-attributes": {
-                "values": [
-                  "true",
-                  "false"
-                ],
-                "default": "false"
+          "widget-type": "password",
+          "label": "Access Key",
+          "name": "accessKey",
+          "widget-attributes": {
+            "placeholder": "Amazon Access Key"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Maximum Split Size",
+          "name": "maxSplitSize",
+          "widget-attributes": {
+            "placeholder": "Maximum split size for each partition specified in bytes"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Regex Path Filter",
+          "name": "fileRegex",
+          "widget-attributes": {
+            "placeholder": "Regular expression for files to read"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Path Field",
+          "name": "pathField",
+          "widget-attributes": {
+            "placeholder": "Output field to contain the path of the object that was read from"
+          }
+        },
+        {
+          "widget-type": "radio-group",
+          "name": "filenameOnly",
+          "label": "Path Filename Only",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "false",
+            "options": [
+              {
+                "id": "true",
+                "label": "True"
+              },
+              {
+                "id": "false",
+                "label": "False"
               }
-            },
-            {
-              "widget-type": "hidden",
-              "name": "copyHeader"
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "widget-type": "radio-group",
+          "name": "recursive",
+          "label": "Read Files Recursively",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "false",
+            "options": [
+              {
+                "id": "true",
+                "label": "True"
+              },
+              {
+                "id": "false",
+                "label": "False"
+              }
+            ]
+          }
+        },
+        {
+          "widget-type": "radio-group",
+          "label": "Allow Empty Input",
+          "name": "ignoreNonExistingFolders",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "false",
+            "options": [
+              {
+                "id": "true",
+                "label": "True"
+              },
+              {
+                "id": "false",
+                "label": "False"
+              }
+            ]
+          }
+        },
+        {
+          "widget-type": "json-editor",
+          "label": "File System Properties",
+          "name": "fileSystemProperties"
+        },
+        {
+          "widget-type": "hidden",
+          "name": "copyHeader"
         }
       ]
     }
