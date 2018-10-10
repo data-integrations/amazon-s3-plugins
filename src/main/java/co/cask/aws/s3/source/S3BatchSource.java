@@ -22,6 +22,7 @@ import co.cask.cdap.api.annotation.Name;
 import co.cask.cdap.api.annotation.Plugin;
 import co.cask.cdap.etl.api.batch.BatchSource;
 import co.cask.cdap.etl.api.batch.BatchSourceContext;
+import co.cask.hydrator.common.LineageRecorder;
 import co.cask.hydrator.format.input.PathTrackingInputFormat;
 import co.cask.hydrator.format.plugin.AbstractFileSource;
 import co.cask.hydrator.format.plugin.AbstractFileSourceConfig;
@@ -31,6 +32,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -72,6 +74,11 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       properties.put(PathTrackingInputFormat.COPY_HEADER, "true");
     }
     return properties;
+  }
+
+  @Override
+  protected void recordLineage(LineageRecorder lineageRecorder, List<String> outputFields) {
+    lineageRecorder.recordRead("Read", "Read from S3.", outputFields);
   }
 
   /**
