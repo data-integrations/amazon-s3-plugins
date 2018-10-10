@@ -22,6 +22,7 @@ import co.cask.cdap.api.annotation.Name;
 import co.cask.cdap.api.annotation.Plugin;
 import co.cask.cdap.etl.api.batch.BatchSink;
 import co.cask.cdap.etl.api.batch.BatchSinkContext;
+import co.cask.hydrator.common.LineageRecorder;
 import co.cask.hydrator.format.plugin.AbstractFileSink;
 import co.cask.hydrator.format.plugin.AbstractFileSinkConfig;
 import com.google.common.annotations.VisibleForTesting;
@@ -31,6 +32,7 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -80,6 +82,11 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
       }
     }
     return properties;
+  }
+
+  @Override
+  protected void recordLineage(LineageRecorder lineageRecorder, List<String> outputFields) {
+    lineageRecorder.recordWrite("Write", "Wrote to S3.", outputFields);
   }
 
   @VisibleForTesting
