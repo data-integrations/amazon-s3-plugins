@@ -14,20 +14,20 @@
  * the License.
  */
 
-package co.cask.aws.s3.sink;
+package io.cdap.aws.s3.sink;
 
-import co.cask.cdap.api.annotation.Description;
-import co.cask.cdap.api.annotation.Macro;
-import co.cask.cdap.api.annotation.Name;
-import co.cask.cdap.api.annotation.Plugin;
-import co.cask.cdap.etl.api.batch.BatchSink;
-import co.cask.cdap.etl.api.batch.BatchSinkContext;
-import co.cask.hydrator.common.LineageRecorder;
-import co.cask.hydrator.format.plugin.AbstractFileSink;
-import co.cask.hydrator.format.plugin.AbstractFileSinkConfig;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import io.cdap.cdap.api.annotation.Description;
+import io.cdap.cdap.api.annotation.Macro;
+import io.cdap.cdap.api.annotation.Name;
+import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.etl.api.batch.BatchSink;
+import io.cdap.cdap.etl.api.batch.BatchSinkContext;
+import io.cdap.plugin.common.LineageRecorder;
+import io.cdap.plugin.format.plugin.AbstractFileSink;
+import io.cdap.plugin.format.plugin.AbstractFileSinkConfig;
 
 import java.lang.reflect.Type;
 import java.util.Collections;

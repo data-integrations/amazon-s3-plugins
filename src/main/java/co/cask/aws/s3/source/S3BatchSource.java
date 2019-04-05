@@ -14,23 +14,23 @@
  * the License.
  */
 
-package co.cask.aws.s3.source;
+package io.cdap.aws.s3.source;
 
-import co.cask.cdap.api.annotation.Description;
-import co.cask.cdap.api.annotation.Macro;
-import co.cask.cdap.api.annotation.Name;
-import co.cask.cdap.api.annotation.Plugin;
-import co.cask.cdap.api.data.schema.Schema;
-import co.cask.cdap.api.plugin.EndpointPluginContext;
-import co.cask.cdap.etl.api.batch.BatchSource;
-import co.cask.cdap.etl.api.batch.BatchSourceContext;
-import co.cask.hydrator.common.LineageRecorder;
-import co.cask.hydrator.format.FileFormat;
-import co.cask.hydrator.format.input.PathTrackingInputFormat;
-import co.cask.hydrator.format.plugin.AbstractFileSource;
-import co.cask.hydrator.format.plugin.AbstractFileSourceConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.cdap.cdap.api.annotation.Description;
+import io.cdap.cdap.api.annotation.Macro;
+import io.cdap.cdap.api.annotation.Name;
+import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.api.data.schema.Schema;
+import io.cdap.cdap.api.plugin.EndpointPluginContext;
+import io.cdap.cdap.etl.api.batch.BatchSource;
+import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.plugin.common.LineageRecorder;
+import io.cdap.plugin.format.FileFormat;
+import io.cdap.plugin.format.input.PathTrackingInputFormat;
+import io.cdap.plugin.format.plugin.AbstractFileSource;
+import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
