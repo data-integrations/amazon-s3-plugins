@@ -21,6 +21,13 @@
           "name": "path",
           "widget-attributes": {
             "placeholder": "s3a://<bucket>/path/to/input"
+          },
+          "plugin-function": {
+            "label": "Browse",
+            "widget": "connection-browser",
+            "widget-attributes": {
+              "connectionType": "S3"
+            }
           }
         },
         {
