@@ -108,9 +108,8 @@
           "label": "Enable Encryption",
           "name": "enableEncryption",
           "widget-attributes": {
-            "layout": "inline",
             "default": "true",
-            "options": [
+            "values": [
               {
                 "id": "true",
                 "label": "True"
