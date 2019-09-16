@@ -1,4 +1,3 @@
-
 {
   "metadata": {
     "spec-version": "1.5"
@@ -25,7 +24,7 @@
           "widget-type": "textbox",
           "label": "Path Suffix",
           "name": "suffix",
-          "widget-attributes" : {
+          "widget-attributes": {
             "default": "yyyy-MM-dd-HH-mm"
           }
         },
@@ -143,8 +142,26 @@
     }
   ],
   "jump-config": {
-    "datasets": [{
-      "ref-property-name": "referenceName"
-    }]
-  }
+    "datasets": [
+      {
+        "ref-property-name": "referenceName"
+      }
+    ]
+  },
+  "filters": [
+    {
+      "name": "AuthByIAM",
+      "condition": {
+        "expression": "authenticationMethod == 'Access Credentials'"
+      },
+      "show": [
+        {
+          "name": "accessID"
+        },
+        {
+          "name": "accessKey"
+        }
+      ]
+    }
+  ]
 }
