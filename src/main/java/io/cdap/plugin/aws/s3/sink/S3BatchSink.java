@@ -23,6 +23,7 @@ import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSink;
 import io.cdap.cdap.etl.api.batch.BatchSinkContext;
 import io.cdap.plugin.common.LineageRecorder;
@@ -41,7 +42,7 @@ import javax.annotation.Nullable;
  */
 @Plugin(type = BatchSink.PLUGIN_TYPE)
 @Name("S3")
-@Description("Batch source to use Amazon S3 as a source.")
+@Description("Batch sink to use Amazon S3 as a sink.")
 public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig> {
   private static final String ENCRYPTION_VALUE = "AES256";
   private static final String S3A_ACCESS_KEY = "fs.s3a.access.key";
@@ -99,6 +100,12 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
    */
   @SuppressWarnings("unused")
   public static class S3BatchSinkConfig extends AbstractFileSinkConfig {
+    private static final String NAME_ACCESS_ID = "accessID";
+    private static final String NAME_ACCESS_KEY = "accessKey";
+    private static final String NAME_PATH = "path";
+    private static final String NAME_AUTH_METHOD = "authenticationMethod";
+    private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
+
     private static final Gson GSON = new Gson();
     private static final Type MAP_STRING_STRING_TYPE = new TypeToken<Map<String, String>>() { }.getType();
 
@@ -143,19 +150,34 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
     }
 
     public void validate() {
+      // no-op
+    }
+
+    @Override
+    public void validate(FailureCollector collector) {
+      super.validate(collector);
       if (ACCESS_CREDENTIALS.equalsIgnoreCase(authenticationMethod)) {
-        if (!containsMacro("accessID") && (accessID == null || accessID.isEmpty())) {
-          throw new IllegalArgumentException("The Access ID must be specified if " +
-                                               "authentication method is Access Credentials.");
+        if (!containsMacro(NAME_ACCESS_ID) && (accessID == null || accessID.isEmpty())) {
+          collector.addFailure("The Access ID must be specified if authentication method is Access Credentials.", null)
+            .withConfigProperty(NAME_ACCESS_ID).withConfigProperty(NAME_AUTH_METHOD);
         }
-        if (!containsMacro("accessKey") && (accessKey == null || accessKey.isEmpty())) {
-          throw new IllegalArgumentException("The Access Key must be specified if " +
-                                               "authentication method is Access Credentials.");
+        if (!containsMacro(NAME_ACCESS_KEY) && (accessKey == null || accessKey.isEmpty())) {
+          collector.addFailure("The Access Key must be specified if authentication method is Access Credentials.", null)
+            .withConfigProperty(NAME_ACCESS_KEY).withConfigProperty(NAME_AUTH_METHOD);
         }
       }
 
-      if (!containsMacro("path") && !path.startsWith("s3a://") && !path.startsWith("s3n://")) {
-        throw new IllegalArgumentException("Path must start with s3a:// or s3n://.");
+      if (!containsMacro(NAME_PATH) && !path.startsWith("s3a://") && !path.startsWith("s3n://")) {
+        collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
+      }
+
+      if (!containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
+        try {
+          getFilesystemProperties();
+        } catch (Exception e) {
+          collector.addFailure("File system properties must be a valid json.", null)
+            .withConfigProperty(NAME_FILE_SYSTEM_PROPERTIES).withStacktrace(e.getStackTrace());
+        }
       }
     }
 
@@ -170,7 +192,7 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
 
     Map<String, String> getFilesystemProperties() {
       Map<String, String> properties = new HashMap<>();
-      if (containsMacro("fileSystemProperties")) {
+      if (containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
         return properties;
       }
       return GSON.fromJson(fileSystemProperties, MAP_STRING_STRING_TYPE);
