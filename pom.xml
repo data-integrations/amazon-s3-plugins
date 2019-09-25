@@ -214,6 +214,16 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-aws</artifactId>
+      <version>${hadoop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -235,7 +245,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_exportcontents>io.cdap.plugin.aws.s3.*</_exportcontents>
+              <_exportcontents>io.cdap.plugin.aws.s3.*,org.apache.hadoop.fs.s3.*,org.apache.hadoop.fs.s3a.*,org.apache.hadoop.fs.s3native.*</_exportcontents>
               <Embed-Dependency>*;inline=false;scope=compile</Embed-Dependency>
               <Embed-Transitive>true</Embed-Transitive>
               <Embed-Directory>lib</Embed-Directory>
