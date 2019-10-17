@@ -218,8 +218,26 @@
     }
   ],
   "jump-config": {
-    "datasets": [{
-      "ref-property-name": "referenceName"
-    }]
-  }
+    "datasets": [
+      {
+        "ref-property-name": "referenceName"
+      }
+    ]
+  },
+  "filters": [
+    {
+      "name": "AuthByIAM",
+      "condition": {
+        "expression": "authenticationMethod == 'Access Credentials'"
+      },
+      "show": [
+        {
+          "name": "accessID"
+        },
+        {
+          "name": "accessKey"
+        }
+      ]
+    }
+  ]
 }

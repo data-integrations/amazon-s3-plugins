@@ -22,6 +22,7 @@ import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
 import io.cdap.cdap.etl.api.validation.InvalidConfigPropertyException;
@@ -87,6 +88,12 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
    */
   @SuppressWarnings("unused")
   public static class S3BatchConfig extends AbstractFileSourceConfig {
+    private static final String NAME_ACCESS_ID = "accessID";
+    private static final String NAME_ACCESS_KEY = "accessKey";
+    private static final String NAME_PATH = "path";
+    private static final String NAME_AUTH_METHOD = "authenticationMethod";
+    private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
+
     private static final Gson GSON = new Gson();
     private static final Type MAP_STRING_STRING_TYPE = new TypeToken<Map<String, String>>() { }.getType();
 
@@ -125,23 +132,32 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
 
     @Override
     public void validate() {
-      super.validate();
+      // no-op
+    }
+
+    @Override
+    public void validate(FailureCollector collector) {
+      super.validate(collector);
       if (ACCESS_CREDENTIALS.equals(authenticationMethod)) {
         if (!containsMacro("accessID") && (accessID == null || accessID.isEmpty())) {
-          throw new InvalidConfigPropertyException("The Access ID must be specified if " +
-                                                     "authentication method is Access Credentials.",
-                                                   "accessID");
+          collector.addFailure("The Access ID must be specified if authentication method is Access Credentials.", null)
+            .withConfigProperty(NAME_ACCESS_ID).withConfigProperty(NAME_AUTH_METHOD);
         }
         if (!containsMacro("accessKey") && (accessKey == null || accessKey.isEmpty())) {
-          throw new InvalidConfigPropertyException("The Access Key must be specified if " +
-                                                     "authentication method is Access Credentials.",
-                                                   "accessKey");
+          collector.addFailure("The Access Key must be specified if authentication method is Access Credentials.", null)
+            .withConfigProperty(NAME_ACCESS_KEY).withConfigProperty(NAME_AUTH_METHOD);
         }
       }
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
-        throw new InvalidConfigPropertyException("Path must start with s3a:// for S3AFileSystem or s3n:// for " +
-                                                   "S3NativeFilesystem.",
-                                                 "path");
+        collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
+      }
+      if (!containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
+        try {
+          getFilesystemProperties();
+        } catch (Exception e) {
+          collector.addFailure("File system properties must be a valid json.", null)
+            .withConfigProperty(NAME_FILE_SYSTEM_PROPERTIES).withStacktrace(e.getStackTrace());
+        }
       }
     }
 
