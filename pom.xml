@@ -6,7 +6,7 @@
 
   <groupId>io.cdap.plugin</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.12.1-SNAPSHOT</version>
+  <version>1.12.1</version>
 
   <licenses>
     <license>
