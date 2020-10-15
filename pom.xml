@@ -6,7 +6,7 @@
 
   <groupId>io.cdap.plugin</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.12.3-SNAPSHOT</version>
+  <version>1.12.3</version>
   <description>Plugins for Amazon S3</description>
   <url>https://github.com/data-integrations/amazon-s3-plugins</url>
 
