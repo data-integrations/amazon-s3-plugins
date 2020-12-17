@@ -83,6 +83,14 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     lineageRecorder.recordRead("Read", "Read from S3.", outputFields);
   }
 
+  @Override
+  protected boolean shouldGetSchema() {
+    return !config.containsMacro(S3BatchConfig.NAME_PATH) && !config.containsMacro(S3BatchConfig.NAME_FORMAT) &&
+      !config.containsMacro(S3BatchConfig.NAME_DELIMITER) && !config.containsMacro(S3BatchConfig.NAME_ACCESS_ID)
+      && !config.containsMacro(S3BatchConfig.NAME_FILE_SYSTEM_PROPERTIES) &&
+      !config.containsMacro(S3BatchConfig.NAME_ACCESS_KEY) && !config.containsMacro(S3BatchConfig.NAME_ACCESS_KEY);
+  }
+
   /**
    * Config class that contains properties needed for the S3 source.
    */
@@ -93,6 +101,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     private static final String NAME_PATH = "path";
     private static final String NAME_AUTH_METHOD = "authenticationMethod";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
+    private static final String NAME_DELIMITER = "delimiter";
 
     private static final Gson GSON = new Gson();
     private static final Type MAP_STRING_STRING_TYPE = new TypeToken<Map<String, String>>() { }.getType();
