@@ -45,3 +45,5 @@ The default value is false.
 will error when there is no data to read. When set to true, no error will be thrown and zero records will be read.
 
 **File System Properties:** Additional properties to use with the InputFormat when reading the data.
+
+**File Encoding:** The character encoding for the file(s) to be read. The default encoding is UTF-8.
