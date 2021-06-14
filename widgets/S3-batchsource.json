@@ -5,6 +5,74 @@
   "display-name": "Amazon S3",
   "configuration-groups": [
     {
+      "label": "Connection",
+      "properties": [
+        {
+          "widget-type": "toggle",
+          "label": "Use Connection",
+          "name": "useConnection",
+          "widget-attributes" : {
+            "on": {
+              "value": "true",
+              "label": "YES"
+            },
+            "off": {
+              "value": "false",
+              "label": "NO"
+            },
+            "default": "false"
+          }
+        },
+        {
+          "widget-type": "connection-select",
+          "label": "Connection",
+          "name": "connection",
+          "widget-attributes": {
+            "connectionType": "S3"
+          }
+        },
+        {
+          "widget-type": "radio-group",
+          "label": "Authentication Method",
+          "name": "authenticationMethod",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "Access Credentials",
+            "options": [
+              {
+                "id": "Access Credentials",
+                "label": "Access Credentials"
+              },
+              {
+                "id": "IAM",
+                "label": "IAM"
+              }
+            ]
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Access ID",
+          "name": "accessID",
+          "widget-attributes": {
+            "placeholder": "Amazon Access ID"
+          }
+        },
+        {
+          "widget-type": "password",
+          "label": "Access Key",
+          "name": "accessKey",
+          "widget-attributes": {
+            "placeholder": "Amazon Access Key"
+          }
+        },
+        {
+          "widget-type": "hidden",
+          "name": "region"
+        }
+      ]
+    },
+    {
       "label": "Basic",
       "properties": [
         {
@@ -28,7 +96,7 @@
           "label": "Path",
           "name": "path",
           "widget-attributes": {
-            "placeholder": "s3a://<bucket>/path/to/input"
+            "placeholder": "s3n://<bucket>/path/to/input"
           }
         },
         {
@@ -65,46 +133,6 @@
           "name": "delimiter",
           "widget-attributes": {
             "placeholder": "Delimiter if the format is 'delimited'"
-          }
-        }
-      ]
-    },
-    {
-      "label": "Credentials",
-      "properties": [
-        {
-          "widget-type": "radio-group",
-          "label": "Authentication Method",
-          "name": "authenticationMethod",
-          "widget-attributes": {
-            "layout": "inline",
-            "default": "Access Credentials",
-            "options": [
-              {
-                "id": "Access Credentials",
-                "label": "Access Credentials"
-              },
-              {
-                "id": "IAM",
-                "label": "IAM"
-              }
-            ]
-          }
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Access ID",
-          "name": "accessID",
-          "widget-attributes": {
-            "placeholder": "Amazon Access ID"
-          }
-        },
-        {
-          "widget-type": "password",
-          "label": "Access Key",
-          "name": "accessKey",
-          "widget-attributes": {
-            "placeholder": "Amazon Access Key"
           }
         }
       ]
@@ -520,6 +548,38 @@
         },
         {
           "name": "accessKey"
+        }
+      ]
+    },
+    {
+      "name": "showConnectionProperties ",
+      "condition": {
+        "expression": "useConnection == false"
+      },
+      "show": [
+        {
+          "type": "property",
+          "name": "authenticationMethod"
+        },
+        {
+          "type": "property",
+          "name": "accessID"
+        },
+        {
+          "type": "property",
+          "name": "accessKey"
+        }
+      ]
+    },
+    {
+      "name": "showConnectionId",
+      "condition": {
+        "expression": "useConnection == true"
+      },
+      "show": [
+        {
+          "type": "property",
+          "name": "connection"
         }
       ]
     }

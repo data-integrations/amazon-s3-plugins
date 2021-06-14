@@ -9,6 +9,11 @@ the logs in a TimePartitionedFileSet.
 
 Properties
 ----------
+**Use Connection** Whether to use a connection, if a connection is used, 
+the credentials does not need to be provided.
+
+**Connection** Name of the connection to use, should have the macro function ${conn:(connection-name)} to provide.
+
 **Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata, etc.
 
 **Path:** Path to read from. For example, s3a://<bucket>/path/to/input
