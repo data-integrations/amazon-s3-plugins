@@ -20,11 +20,17 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
+import io.cdap.cdap.api.annotation.Metadata;
+import io.cdap.cdap.api.annotation.MetadataProperty;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.cdap.etl.api.connector.Connector;
+import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
+import io.cdap.plugin.aws.s3.common.S3Constants;
+import io.cdap.plugin.aws.s3.connector.S3Connector;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.format.input.PathTrackingInputFormat;
 import io.cdap.plugin.format.plugin.AbstractFileSource;
@@ -41,14 +47,11 @@ import javax.annotation.Nullable;
  * A {@link BatchSource} that reads from Amazon S3.
  */
 @Plugin(type = BatchSource.PLUGIN_TYPE)
-@Name("S3")
+@Name(S3BatchSource.NAME)
 @Description("Batch source to use Amazon S3 as a source.")
+@Metadata(properties = {@MetadataProperty(key = Connector.PLUGIN_TYPE, value = S3Connector.NAME)})
 public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfig> {
-  private static final String S3A_ACCESS_KEY = "fs.s3a.access.key";
-  private static final String S3A_SECRET_KEY = "fs.s3a.secret.key";
-  private static final String S3N_ACCESS_KEY = "fs.s3n.awsAccessKeyId";
-  private static final String S3N_SECRET_KEY = "fs.s3n.awsSecretAccessKey";
-  private static final String ACCESS_CREDENTIALS = "Access Credentials";
+  public static final String NAME = "S3";
 
   @SuppressWarnings("unused")
   private final S3BatchConfig config;
@@ -60,15 +63,14 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
 
   @Override
   protected Map<String, String> getFileSystemProperties(BatchSourceContext context) {
-    String authenticationMethod = config.authenticationMethod;
     Map<String, String> properties = new HashMap<>(config.getFilesystemProperties());
-    if (authenticationMethod != null && authenticationMethod.equalsIgnoreCase(ACCESS_CREDENTIALS)) {
+    if (config.connection.isAccessCredentials()) {
       if (config.path.startsWith("s3a://")) {
-        properties.put(S3A_ACCESS_KEY, config.accessID);
-        properties.put(S3A_SECRET_KEY, config.accessKey);
+        properties.put(S3Constants.S3A_ACCESS_KEY, config.connection.getAccessID());
+        properties.put(S3Constants.S3A_SECRET_KEY, config.connection.getAccessKey());
       } else if (config.path.startsWith("s3n://")) {
-        properties.put(S3N_ACCESS_KEY, config.accessID);
-        properties.put(S3N_SECRET_KEY, config.accessKey);
+        properties.put(S3Constants.S3N_ACCESS_KEY, config.connection.getAccessID());
+        properties.put(S3Constants.S3N_SECRET_KEY, config.connection.getAccessKey());
       }
     }
     if (config.shouldCopyHeader()) {
@@ -88,9 +90,10 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
   @Override
   protected boolean shouldGetSchema() {
     return !config.containsMacro(S3BatchConfig.NAME_PATH) && !config.containsMacro(S3BatchConfig.NAME_FORMAT) &&
-      !config.containsMacro(S3BatchConfig.NAME_DELIMITER) && !config.containsMacro(S3BatchConfig.NAME_ACCESS_ID)
+      !config.containsMacro(S3BatchConfig.NAME_DELIMITER) && !config.containsMacro(S3ConnectorConfig.NAME_ACCESS_ID)
       && !config.containsMacro(S3BatchConfig.NAME_FILE_SYSTEM_PROPERTIES) &&
-      !config.containsMacro(S3BatchConfig.NAME_ACCESS_KEY) && !config.containsMacro(S3BatchConfig.NAME_ACCESS_KEY);
+      !config.containsMacro(S3ConnectorConfig.NAME_ACCESS_KEY)
+             && !config.containsMacro(S3ConnectorConfig.NAME_ACCESS_KEY);
   }
 
   /**
@@ -98,10 +101,9 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
    */
   @SuppressWarnings("unused")
   public static class S3BatchConfig extends AbstractFileSourceConfig {
-    private static final String NAME_ACCESS_ID = "accessID";
-    private static final String NAME_ACCESS_KEY = "accessKey";
-    private static final String NAME_PATH = "path";
-    private static final String NAME_AUTH_METHOD = "authenticationMethod";
+    public static final String NAME_USE_CONNECTION = "useConnection";
+    public static final String NAME_CONNECTION = "connection";
+    public static final String NAME_PATH = "path";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
     private static final String NAME_DELIMITER = "delimiter";
 
@@ -113,22 +115,16 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       "The path must start with s3a:// or s3n://.")
     private String path;
 
-    @Macro
+    @Name(NAME_USE_CONNECTION)
     @Nullable
-    @Description("Access ID of the Amazon S3 instance to connect to.")
-    private String accessID;
+    @Description("Whether to use an existing connection.")
+    private Boolean useConnection;
 
+    @Name(NAME_CONNECTION)
     @Macro
     @Nullable
-    @Description("Access Key of the Amazon S3 instance to connect to.")
-    private String accessKey;
-
-    @Macro
-    @Nullable
-    @Description("Authentication method to access S3. " +
-      "Defaults to Access Credentials. URI scheme should be s3a:// for S3AFileSystem or s3n:// for " +
-      "S3NativeFileSystem.")
-    private String authenticationMethod;
+    @Description("The connection to use.")
+    private S3ConnectorConfig connection;
 
     @Macro
     @Nullable
@@ -137,7 +133,6 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     private String fileSystemProperties;
 
     public S3BatchConfig() {
-      authenticationMethod = ACCESS_CREDENTIALS;
       fileSystemProperties = GSON.toJson(Collections.emptyMap());
     }
 
@@ -149,14 +144,17 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Override
     public void validate(FailureCollector collector) {
       super.validate(collector);
-      if (ACCESS_CREDENTIALS.equals(authenticationMethod)) {
-        if (!containsMacro("accessID") && (accessID == null || accessID.isEmpty())) {
-          collector.addFailure("The Access ID must be specified if authentication method is Access Credentials.", null)
-            .withConfigProperty(NAME_ACCESS_ID).withConfigProperty(NAME_AUTH_METHOD);
-        }
-        if (!containsMacro("accessKey") && (accessKey == null || accessKey.isEmpty())) {
-          collector.addFailure("The Access Key must be specified if authentication method is Access Credentials.", null)
-            .withConfigProperty(NAME_ACCESS_KEY).withConfigProperty(NAME_AUTH_METHOD);
+      // if use connection is false but connection is provided as macro, fail the validation
+      if (useConnection != null && !useConnection && containsMacro(NAME_CONNECTION)) {
+        collector.addFailure(
+          String.format("Connection cannot be used when %s is set to false.", NAME_USE_CONNECTION),
+          String.format("Please set %s to true.", NAME_USE_CONNECTION)).withConfigProperty(NAME_USE_CONNECTION);
+      }
+      if (!containsMacro(NAME_CONNECTION)) {
+        if (connection == null) {
+          collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
+        } else {
+          connection.validate(collector);
         }
       }
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
@@ -175,6 +173,10 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Override
     public String getPath() {
       return path;
+    }
+
+    public S3ConnectorConfig getConnection() {
+      return connection;
     }
 
     Map<String, String> getFilesystemProperties() {
