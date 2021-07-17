@@ -76,7 +76,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <cdap.version>6.5.0-SNAPSHOT</cdap.version>
-    <cdap.plugin.version>2.7.0-SNAPSHOT</cdap.plugin.version>
+    <cdap.plugin.version>2.8.0-SNAPSHOT</cdap.plugin.version>
     <data.pipeline.parent>system:cdap-data-pipeline[6.5.0-SNAPSHOT, 7.0.0-SNAPSHOT)</data.pipeline.parent>
     <data.stream.parent>system:cdap-data-streams[6.5.0-SNAPSHOT, 7.0.0-SNAPSHOT)</data.stream.parent>
     <hadoop.version>2.8.0</hadoop.version>
