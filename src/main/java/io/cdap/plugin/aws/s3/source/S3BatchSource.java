@@ -145,6 +145,13 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     public void validate(FailureCollector collector) {
       super.validate(collector);
       ConfigUtil.validateConnection(this, useConnection, connection, collector);
+      if (!containsMacro(ConfigUtil.NAME_CONNECTION)) {
+        if (connection == null) {
+          collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
+        } else {
+          connection.validate(collector);
+        }
+      }
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
       }
