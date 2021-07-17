@@ -31,6 +31,7 @@ import io.cdap.cdap.etl.api.connector.Connector;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.connector.S3Connector;
+import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.format.input.PathTrackingInputFormat;
 import io.cdap.plugin.format.plugin.AbstractFileSource;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+
 
 /**
  * A {@link BatchSource} that reads from Amazon S3.
@@ -101,8 +103,6 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
    */
   @SuppressWarnings("unused")
   public static class S3BatchConfig extends AbstractFileSourceConfig {
-    public static final String NAME_USE_CONNECTION = "useConnection";
-    public static final String NAME_CONNECTION = "connection";
     public static final String NAME_PATH = "path";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
     private static final String NAME_DELIMITER = "delimiter";
@@ -115,12 +115,12 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       "The path must start with s3a:// or s3n://.")
     private String path;
 
-    @Name(NAME_USE_CONNECTION)
+    @Name(ConfigUtil.NAME_USE_CONNECTION)
     @Nullable
     @Description("Whether to use an existing connection.")
     private Boolean useConnection;
 
-    @Name(NAME_CONNECTION)
+    @Name(ConfigUtil.NAME_CONNECTION)
     @Macro
     @Nullable
     @Description("The connection to use.")
@@ -144,13 +144,8 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Override
     public void validate(FailureCollector collector) {
       super.validate(collector);
-      // if use connection is false but connection is provided as macro, fail the validation
-      if (useConnection != null && !useConnection && containsMacro(NAME_CONNECTION)) {
-        collector.addFailure(
-          String.format("Connection cannot be used when %s is set to false.", NAME_USE_CONNECTION),
-          String.format("Please set %s to true.", NAME_USE_CONNECTION)).withConfigProperty(NAME_USE_CONNECTION);
-      }
-      if (!containsMacro(NAME_CONNECTION)) {
+      ConfigUtil.validateConnection(this, useConnection, connection, collector);
+      if (!containsMacro(ConfigUtil.NAME_CONNECTION)) {
         if (connection == null) {
           collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
         } else {
