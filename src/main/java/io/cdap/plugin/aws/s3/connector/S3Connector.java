@@ -47,6 +47,7 @@ import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
 import io.cdap.plugin.aws.s3.source.S3BatchSource;
+import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.format.connector.AbstractFileConnector;
 import io.cdap.plugin.format.connector.FileTypeDetector;
 
@@ -63,7 +64,7 @@ import java.util.Map;
 @Plugin(type = Connector.PLUGIN_TYPE)
 @Name(S3Connector.NAME)
 @Category("Amazon Web Services")
-@Description("Connector to browse and sample from Amazon S3.")
+@Description("Connection to browse and sample data from Amazon S3.")
 public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   public static final String NAME = "S3";
   private static final String DELIMITER = "/";
@@ -130,8 +131,8 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
     builder.addRelatedPlugin(
       new PluginSpec(S3BatchSource.NAME, BatchSource.PLUGIN_TYPE,
                      ImmutableMap.of(
-                       S3BatchSource.S3BatchConfig.NAME_USE_CONNECTION, "true",
-                       S3BatchSource.S3BatchConfig.NAME_CONNECTION, request.getConnectionWithMacro(),
+                       ConfigUtil.NAME_USE_CONNECTION, "true",
+                       ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro(),
                        S3BatchSource.S3BatchConfig.NAME_PATH, getFullPath(request.getPath()))));
   }
 
