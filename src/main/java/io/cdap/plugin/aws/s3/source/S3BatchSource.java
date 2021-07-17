@@ -144,20 +144,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Override
     public void validate(FailureCollector collector) {
       super.validate(collector);
-      // if use connection is false but connection is provided as macro, fail the validation
-      if (useConnection != null && !useConnection && containsMacro(ConfigUtil.NAME_CONNECTION)) {
-        collector.addFailure(
-          String.format("Connection cannot be used when %s is set to false.", ConfigUtil.NAME_USE_CONNECTION),
-          String.format("Please set %s to true.", ConfigUtil.NAME_USE_CONNECTION))
-          .withConfigProperty(ConfigUtil.NAME_USE_CONNECTION);
-      }
-      if (!containsMacro(ConfigUtil.NAME_CONNECTION)) {
-        if (connection == null) {
-          collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
-        } else {
-          connection.validate(collector);
-        }
-      }
+      ConfigUtil.validateConnection(this, useConnection, connection, collector);
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
       }
