@@ -26,7 +26,6 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.common.collect.ImmutableMap;
 import io.cdap.cdap.api.annotation.Category;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
@@ -48,8 +47,11 @@ import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
 import io.cdap.plugin.aws.s3.source.S3BatchSource;
 import io.cdap.plugin.common.ConfigUtil;
+import io.cdap.plugin.common.Constants;
+import io.cdap.plugin.common.ReferenceNames;
 import io.cdap.plugin.format.connector.AbstractFileConnector;
 import io.cdap.plugin.format.connector.FileTypeDetector;
+import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,12 +130,18 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   @Override
   protected void setConnectorSpec(ConnectorSpecRequest request, ConnectorSpec.Builder builder) {
     super.setConnectorSpec(request, builder);
-    builder.addRelatedPlugin(
-      new PluginSpec(S3BatchSource.NAME, BatchSource.PLUGIN_TYPE,
-                     ImmutableMap.of(
-                       ConfigUtil.NAME_USE_CONNECTION, "true",
-                       ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro(),
-                       S3BatchSource.S3BatchConfig.NAME_PATH, getFullPath(request.getPath()))));
+    Map<String, String> properties = new HashMap<>();
+    properties.put(ConfigUtil.NAME_USE_CONNECTION, "true",);
+    properties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
+    properties.put(S3BatchSource.S3BatchConfig.NAME_PATH, getFullPath(request.getPath()));
+    properties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
+      FileTypeDetector.detectFileType(request.getPath())).name().toLowerCase());
+    if (!isRoot(request.getPath())) {
+      S3Path s3Path = S3Path.from(request.getPath());
+      properties.put(Constants.Reference.REFERENCE_NAME,
+                     ReferenceNames.cleanseReferenceName(s3Path.getBucket() + "." + s3Path.getName()));
+    }
+    builder.addRelatedPlugin(new PluginSpec(S3BatchSource.NAME, BatchSource.PLUGIN_TYPE, properties));
   }
 
   private BrowseDetail browseBuckets(int limit) {
