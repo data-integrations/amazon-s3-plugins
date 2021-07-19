@@ -131,7 +131,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   protected void setConnectorSpec(ConnectorSpecRequest request, ConnectorSpec.Builder builder) {
     super.setConnectorSpec(request, builder);
     Map<String, String> properties = new HashMap<>();
-    properties.put(ConfigUtil.NAME_USE_CONNECTION, "true",);
+    properties.put(ConfigUtil.NAME_USE_CONNECTION, "true");
     properties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
     properties.put(S3BatchSource.S3BatchConfig.NAME_PATH, getFullPath(request.getPath()));
     properties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
