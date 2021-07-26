@@ -66,7 +66,7 @@ import java.util.Map;
 @Plugin(type = Connector.PLUGIN_TYPE)
 @Name(S3Connector.NAME)
 @Category("Amazon Web Services")
-@Description("Connection to browse and sample data from Amazon S3.")
+@Description("Connection to access data in Amazon S3.")
 public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   public static final String NAME = "S3";
   private static final String DELIMITER = "/";
