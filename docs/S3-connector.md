@@ -1,9 +1,9 @@
-# Amazon S3 Connector
+# Amazon S3 Connection
 
 
 Description
 -----------
-Use this connection to browse and sample data from S3 in Wrangler and to read data from an S3 source in a data pipeline.
+Use this connection to access data in Amazon S3.
 
 Properties
 ----------
