@@ -19,3 +19,8 @@ IAM can only be used if the plugin is run in an AWS environment, such as on EMR.
 **Access Key:** Amazon access key required for authentication.
 
 **Region:** Region to be used by the S3 Client. Note: Region is only used to sample data in Wrangler. It is not used in the S3 batch source plugin in data pipelines.
+
+Path of the connection
+----------------------
+To browse, get a sample from, or get the specification for this connection through API (see [Pipeline Microservices](https://cdap.atlassian.net/wiki/spaces/DOCS/pages/975929350/Pipeline+Microservices)),
+the `path` property is required in the request body. It's an absolute Amazon S3 path of a file or folder.
