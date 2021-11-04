@@ -91,6 +91,14 @@
           "widget-attributes": {
             "placeholder": "Amazon Access Key"
           }
+        },
+        {
+          "widget-type": "password",
+          "label": "Session Token",
+          "name": "sessionToken",
+          "widget-attributes": {
+            "placeholder": "Amazon Session Token"
+          }
         }
       ]
     },
@@ -160,7 +168,10 @@
         },
         {
           "name": "accessKey"
-        }
+        },
+	{
+	  "name": "sessionToken"
+	}
       ]
     }
   ]

@@ -36,6 +36,8 @@ import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.format.input.PathTrackingInputFormat;
 import io.cdap.plugin.format.plugin.AbstractFileSource;
 import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -43,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-
 
 /**
  * A {@link BatchSource} that reads from Amazon S3.
@@ -70,6 +71,14 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       if (config.path.startsWith("s3a://")) {
         properties.put(S3Constants.S3A_ACCESS_KEY, config.connection.getAccessID());
         properties.put(S3Constants.S3A_SECRET_KEY, config.connection.getAccessKey());
+        if (config.connection.getSessionToken() != null) {
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
+              S3Constants.S3A_TEMP_CREDENTIAL_PROVIDERS);
+          properties.put(S3Constants.S3A_SESSION_TOKEN, config.connection.getSessionToken());
+        } else {
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
+              S3Constants.S3A_SIMPLE_CREDENTIAL_PROVIDERS);
+        }
       } else if (config.path.startsWith("s3n://")) {
         properties.put(S3Constants.S3N_ACCESS_KEY, config.connection.getAccessID());
         properties.put(S3Constants.S3N_SECRET_KEY, config.connection.getAccessKey());
@@ -154,6 +163,11 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       }
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
+      }
+      if (!containsMacro("path") && path.startsWith("s3n://") && connection.getSessionToken() != null &&
+            !connection.getSessionToken().isEmpty()) {
+        collector.addFailure("Temporary credentials are only supported for s3a:// paths.", null)
+            .withConfigProperty(NAME_PATH);
       }
       if (!containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
         try {

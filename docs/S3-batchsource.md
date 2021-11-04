@@ -33,6 +33,8 @@ IAM can only be used if the plugin is run in an AWS environment, such as on EMR.
 
 **Access Key:** Amazon access key required for authentication.
 
+**Session Token:** Amazon session token required for authentication. Only required for temporary credentials.
+
 **Maximum Split Size:** Maximum size in bytes for each input partition.
 Smaller partitions will increase the level of parallelism, but will require more resources and overhead.
 The default value is 128MB.

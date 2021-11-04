@@ -17,8 +17,10 @@
 
 package io.cdap.plugin.aws.s3.connector;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -52,6 +54,8 @@ import io.cdap.plugin.common.ReferenceNames;
 import io.cdap.plugin.format.connector.AbstractFileConnector;
 import io.cdap.plugin.format.connector.FileTypeDetector;
 import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +80,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   static final String LAST_MODIFIED_KEY = "Last Modified";
   static final String SIZE_KEY = "Size";
   static final String FILE_TYPE_KEY = "File Type";
+
 
   private final S3ConnectorConfig config;
 
@@ -264,7 +269,12 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
       throw new IllegalArgumentException("Access key and secret key are not provided");
     }
 
-    BasicAWSCredentials creds = new BasicAWSCredentials(config.getAccessID(), config.getAccessKey());
+    AWSCredentials creds;
+    if (config.getSessionToken() == null) {
+      creds = new BasicAWSCredentials(config.getAccessID(), config.getAccessKey());
+    } else {
+      creds = new BasicSessionCredentials(config.getAccessID(), config.getAccessKey(), config.getSessionToken());
+    }
     return builder.withCredentials(new AWSStaticCredentialsProvider(creds)).build();
   }
 

@@ -128,7 +128,8 @@ public class S3ConnectorTest {
         BrowseEntity.builder(summary.getKey(), bucket + "/" + summary.getKey(), S3Connector.FILE_TYPE).canSample(true)
           .setProperties(getFileProperties(summary)).build()));
 
-    S3Connector connector = new S3Connector(new S3ConnectorConfig(accessKey, secretKey, "Access Credentials", region));
+    S3Connector connector = new S3Connector(
+        new S3ConnectorConfig(accessKey, secretKey, null, "Access Credentials", region));
     MockConnectorContext context = new MockConnectorContext(new MockConnectorConfigurer());
     connector.test(context);
     Assert.assertTrue(context.getFailureCollector().getValidationFailures().isEmpty());

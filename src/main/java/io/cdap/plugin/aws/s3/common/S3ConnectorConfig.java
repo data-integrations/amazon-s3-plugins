@@ -46,6 +46,11 @@ public class S3ConnectorConfig extends PluginConfig {
 
   @Macro
   @Nullable
+  @Description("Session Token of the Amazon S3 instance to connect to, if this is a temporary credential")
+  private String sessionToken;
+
+  @Macro
+  @Nullable
   @Description("Authentication method to access S3. Defaults to Access Credentials.")
   private String authenticationMethod;
 
@@ -58,10 +63,15 @@ public class S3ConnectorConfig extends PluginConfig {
     authenticationMethod = ACCESS_CREDENTIALS;
   }
 
-  public S3ConnectorConfig(@Nullable String accessID, @Nullable String accessKey,
-                           @Nullable String authenticationMethod, @Nullable String region) {
+  public S3ConnectorConfig(
+      @Nullable String accessID,
+      @Nullable String accessKey,
+      @Nullable String sessionToken,
+      @Nullable String authenticationMethod,
+      @Nullable String region) {
     this.accessID = accessID;
     this.accessKey = accessKey;
+    this.sessionToken = sessionToken;
     this.authenticationMethod = authenticationMethod;
     this.region = region;
   }
@@ -74,6 +84,11 @@ public class S3ConnectorConfig extends PluginConfig {
   @Nullable
   public String getAccessKey() {
     return accessKey;
+  }
+
+  @Nullable
+  public String getSessionToken() {
+    return sessionToken;
   }
 
   @Nullable

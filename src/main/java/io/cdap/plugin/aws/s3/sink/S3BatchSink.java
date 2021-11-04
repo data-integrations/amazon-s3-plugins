@@ -26,6 +26,7 @@ import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSink;
 import io.cdap.cdap.etl.api.batch.BatchSinkContext;
+import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.format.plugin.AbstractFileSink;
 import io.cdap.plugin.format.plugin.AbstractFileSinkConfig;
@@ -45,13 +46,6 @@ import javax.annotation.Nullable;
 @Description("Batch sink to use Amazon S3 as a sink.")
 public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig> {
   private static final String ENCRYPTION_VALUE = "AES256";
-  private static final String S3A_ACCESS_KEY = "fs.s3a.access.key";
-  private static final String S3A_SECRET_KEY = "fs.s3a.secret.key";
-  private static final String S3A_ENCRYPTION = "fs.s3a.server-side-encryption-algorithm";
-
-  private static final String S3N_ACCESS_KEY = "fs.s3n.awsAccessKeyId";
-  private static final String S3N_SECRET_KEY = "fs.s3n.awsSecretAccessKey";
-  private static final String S3N_ENCRYPTION = "fs.s3n.server-side-encryption-algorithm";
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
 
   private final S3BatchSinkConfig config;
@@ -67,19 +61,26 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
 
     if (ACCESS_CREDENTIALS.equalsIgnoreCase(config.authenticationMethod)) {
       if (config.path.startsWith("s3a://")) {
-        properties.put(S3A_ACCESS_KEY, config.accessID);
-        properties.put(S3A_SECRET_KEY, config.accessKey);
+        properties.put(S3Constants.S3A_ACCESS_KEY, config.accessID);
+        properties.put(S3Constants.S3A_SECRET_KEY, config.accessKey);
+        if (config.sessionToken != null) {
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
+              S3Constants.S3A_TEMP_CREDENTIAL_PROVIDERS);
+        } else {
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
+              S3Constants.S3A_SIMPLE_CREDENTIAL_PROVIDERS);
+        }
       } else if (config.path.startsWith("s3n://")) {
-        properties.put(S3N_ACCESS_KEY, config.accessID);
-        properties.put(S3N_SECRET_KEY, config.accessKey);
+        properties.put(S3Constants.S3N_ACCESS_KEY, config.accessID);
+        properties.put(S3Constants.S3N_SECRET_KEY, config.accessKey);
       }
     }
 
     if (config.shouldEnableEncryption()) {
       if (config.path.startsWith("s3a://")) {
-        properties.put(S3A_ENCRYPTION, ENCRYPTION_VALUE);
+        properties.put(S3Constants.S3A_ENCRYPTION, ENCRYPTION_VALUE);
       } else if (config.path.startsWith("s3n://")) {
-        properties.put(S3N_ENCRYPTION, ENCRYPTION_VALUE);
+        properties.put(S3Constants.S3N_ENCRYPTION, ENCRYPTION_VALUE);
       }
     }
     return properties;
@@ -102,6 +103,7 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
   public static class S3BatchSinkConfig extends AbstractFileSinkConfig {
     private static final String NAME_ACCESS_ID = "accessID";
     private static final String NAME_ACCESS_KEY = "accessKey";
+    private static final String NAME_SESSION_TOKEN = "sessionToken";
     private static final String NAME_PATH = "path";
     private static final String NAME_AUTH_METHOD = "authenticationMethod";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
@@ -123,6 +125,11 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
     @Nullable
     @Description("Access Key of the Amazon S3 instance to connect to.")
     private String accessKey;
+
+    @Macro
+    @Nullable
+    @Description("Session Token of the Amazon S3 instance to connect to, if this is a temporary credential")
+    private String sessionToken;
 
     @Macro
     @Nullable
@@ -169,6 +176,11 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
 
       if (!containsMacro(NAME_PATH) && !path.startsWith("s3a://") && !path.startsWith("s3n://")) {
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
+      }
+
+      if (!containsMacro(NAME_PATH) && path.startsWith("s3n://") && sessionToken != null && !sessionToken.isEmpty()) {
+        collector.addFailure("Temporary credentials are only supported for s3a:// paths.", null)
+            .withConfigProperty(NAME_PATH);
       }
 
       if (!containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
