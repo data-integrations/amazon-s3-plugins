@@ -33,6 +33,7 @@ IAM can only be used if the plugin is run in an AWS environment, such as on EMR.
 **Access Key:** Amazon access key required for authentication.
 
 **Session Token:** Amazon session token required for authentication. Only required for temporary credentials.
+Temporary credentials are only supported for S3A paths.
 
 **Enable Encryption:** Whether to enable server side encryption. The sole supported algorithm is AES256.
 

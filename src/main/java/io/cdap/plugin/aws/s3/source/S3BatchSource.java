@@ -16,6 +16,7 @@
 
 package io.cdap.plugin.aws.s3.source;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.cdap.cdap.api.annotation.Description;
@@ -164,8 +165,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
       }
-      if (!containsMacro("path") && path.startsWith("s3n://") && connection.getSessionToken() != null &&
-            !connection.getSessionToken().isEmpty()) {
+      if (!containsMacro("path") && path.startsWith("s3n://") && !Strings.isNullOrEmpty(connection.getSessionToken())) {
         collector.addFailure("Temporary credentials are only supported for s3a:// paths.", null)
             .withConfigProperty(NAME_PATH);
       }

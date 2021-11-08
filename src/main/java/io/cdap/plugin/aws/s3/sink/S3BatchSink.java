@@ -17,6 +17,7 @@
 package io.cdap.plugin.aws.s3.sink;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.cdap.cdap.api.annotation.Description;
@@ -178,7 +179,7 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
       }
 
-      if (!containsMacro(NAME_PATH) && path.startsWith("s3n://") && sessionToken != null && !sessionToken.isEmpty()) {
+      if (!containsMacro(NAME_PATH) && path.startsWith("s3n://") && !Strings.isNullOrEmpty(sessionToken)) {
         collector.addFailure("Temporary credentials are only supported for s3a:// paths.", null)
             .withConfigProperty(NAME_PATH);
       }
