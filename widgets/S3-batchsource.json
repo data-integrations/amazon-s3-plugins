@@ -66,6 +66,22 @@
             "placeholder": "Amazon Access Key"
           }
         },
+	{
+	  "widget-type": "password",
+	  "label": "Session Token",
+	  "name": "sessionToken",
+	  "widget-attributes": {
+	    "placeholder": "Amazon Session Token"
+	  }
+	},
+        {
+          "widget-type": "password",
+          "label": "Session Token",
+          "name": "sessionToken",
+          "widget-attributes": {
+            "placeholder": "Amazon Session Token"
+          }
+        },
         {
           "widget-type": "hidden",
           "name": "region"
@@ -548,6 +564,9 @@
         },
         {
           "name": "accessKey"
+        },
+        {
+          "name": "sessionToken"
         }
       ]
     },
@@ -568,6 +587,10 @@
         {
           "type": "property",
           "name": "accessKey"
+        },
+        {
+          "type": "property",
+          "name": "sessionToken"
         }
       ]
     },

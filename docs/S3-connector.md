@@ -18,6 +18,9 @@ IAM can only be used if the plugin is run in an AWS environment, such as on EMR.
 
 **Access Key:** Amazon access key required for authentication.
 
+**Session Token:** Amazon session token required for authentication. Only required for temporary credentials.
+Temporary credentials are only supported for S3A paths.
+
 **Region:** Region to be used by the S3 Client. Note: Region is only used to sample data in Wrangler. It is not used in the S3 batch source plugin in data pipelines.
 
 Path of the connection
