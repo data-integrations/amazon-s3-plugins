@@ -75,14 +75,6 @@
 	  }
 	},
         {
-          "widget-type": "password",
-          "label": "Session Token",
-          "name": "sessionToken",
-          "widget-attributes": {
-            "placeholder": "Amazon Session Token"
-          }
-        },
-        {
           "widget-type": "hidden",
           "name": "region"
         }
