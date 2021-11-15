@@ -33,6 +33,7 @@ import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.etl.api.FailureCollector;
+import io.cdap.cdap.etl.api.batch.BatchSink;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.connector.BrowseDetail;
 import io.cdap.cdap.etl.api.connector.BrowseEntity;
@@ -47,6 +48,7 @@ import io.cdap.cdap.etl.api.validation.ValidationException;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
+import io.cdap.plugin.aws.s3.sink.S3BatchSink;
 import io.cdap.plugin.aws.s3.source.S3BatchSource;
 import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.Constants;
@@ -135,18 +137,26 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   @Override
   protected void setConnectorSpec(ConnectorSpecRequest request, ConnectorSpec.Builder builder) {
     super.setConnectorSpec(request, builder);
-    Map<String, String> properties = new HashMap<>();
-    properties.put(ConfigUtil.NAME_USE_CONNECTION, "true");
-    properties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
-    properties.put(S3BatchSource.S3BatchConfig.NAME_PATH, getFullPath(request.getPath()));
-    properties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
-      FileTypeDetector.detectFileType(request.getPath())).name().toLowerCase());
-    if (!isRoot(request.getPath())) {
-      S3Path s3Path = S3Path.from(request.getPath());
-      properties.put(Constants.Reference.REFERENCE_NAME,
-                     ReferenceNames.cleanseReferenceName(s3Path.getBucket() + "." + s3Path.getName()));
+    Map<String, String> sourceProperties = new HashMap<>();
+    Map<String, String> sinkProperties = new HashMap<>();
+    String path = request.getPath();
+    String fullPath = getFullPath(path);
+    sourceProperties.put(ConfigUtil.NAME_USE_CONNECTION, "true");
+    sinkProperties.put(ConfigUtil.NAME_USE_CONNECTION, "true");
+    sourceProperties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
+    sinkProperties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
+    sourceProperties.put(S3BatchSource.S3BatchConfig.NAME_PATH, fullPath);
+    sinkProperties.put(S3BatchSource.S3BatchConfig.NAME_PATH, fullPath);
+    sourceProperties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
+      FileTypeDetector.detectFileType(path)).name().toLowerCase());
+    if (!isRoot(path)) {
+      S3Path s3Path = S3Path.from(path);
+      String referenceName = ReferenceNames.cleanseReferenceName(s3Path.getBucket() + "." + s3Path.getName());
+      sourceProperties.put(Constants.Reference.REFERENCE_NAME, referenceName);
+      sinkProperties.put(Constants.Reference.REFERENCE_NAME, referenceName);
     }
-    builder.addRelatedPlugin(new PluginSpec(S3BatchSource.NAME, BatchSource.PLUGIN_TYPE, properties));
+    builder.addRelatedPlugin(new PluginSpec(S3BatchSource.NAME, BatchSource.PLUGIN_TYPE, sourceProperties));
+    builder.addRelatedPlugin(new PluginSpec(S3BatchSink.NAME, BatchSink.PLUGIN_TYPE, sinkProperties));
   }
 
   private BrowseDetail browseBuckets(int limit) {

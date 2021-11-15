@@ -12,7 +12,7 @@ Properties
 **Use Connection** Whether to use a connection, if a connection is used, 
 the credentials does not need to be provided.
 
-**Connection** Name of the connection to use, should have the macro function ${conn:(connection-name)} to provide.
+**Connection** Name of the connection to use, should have the macro function ${conn(connection-name)} to provide.
 
 **Reference Name:** Name used to uniquely identify this source for lineage, annotating metadata, etc.
 

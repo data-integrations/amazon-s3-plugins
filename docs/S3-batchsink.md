@@ -13,6 +13,11 @@ Properties
 ----------
 **Reference Name:** Name used to uniquely identify this sink for lineage, annotating metadata, etc.
 
+**Use Connection** Whether to use a connection, if a connection is used,
+the credentials does not need to be provided.
+
+**Connection** Name of the connection to use, should have the macro function ${conn(connection-name)} to provide.
+
 **Path:** Path to write to. For example, s3a://<bucket>/path/to/output
 
 **Path Suffix:** Time format for the output directory that will be appended to the path.

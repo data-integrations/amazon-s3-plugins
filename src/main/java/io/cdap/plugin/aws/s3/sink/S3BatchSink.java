@@ -22,12 +22,18 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
+import io.cdap.cdap.api.annotation.Metadata;
+import io.cdap.cdap.api.annotation.MetadataProperty;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.batch.BatchSink;
 import io.cdap.cdap.etl.api.batch.BatchSinkContext;
+import io.cdap.cdap.etl.api.connector.Connector;
+import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
+import io.cdap.plugin.aws.s3.connector.S3Connector;
+import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.format.plugin.AbstractFileSink;
 import io.cdap.plugin.format.plugin.AbstractFileSinkConfig;
@@ -43,9 +49,11 @@ import javax.annotation.Nullable;
  * {@link S3BatchSink} that stores the data of the latest run of an adapter in S3.
  */
 @Plugin(type = BatchSink.PLUGIN_TYPE)
-@Name("S3")
+@Name(S3BatchSink.NAME)
 @Description("Batch sink to use Amazon S3 as a sink.")
+@Metadata(properties = {@MetadataProperty(key = Connector.PLUGIN_TYPE, value = S3Connector.NAME)})
 public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig> {
+  public static final String NAME = "S3";
   private static final String ENCRYPTION_VALUE = "AES256";
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
 
@@ -60,11 +68,11 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
   protected Map<String, String> getFileSystemProperties(BatchSinkContext context) {
     Map<String, String> properties = new HashMap<>(config.getFilesystemProperties());
 
-    if (ACCESS_CREDENTIALS.equalsIgnoreCase(config.authenticationMethod)) {
+    if (config.connection.isAccessCredentials()) {
       if (config.path.startsWith("s3a://")) {
-        properties.put(S3Constants.S3A_ACCESS_KEY, config.accessID);
-        properties.put(S3Constants.S3A_SECRET_KEY, config.accessKey);
-        if (config.sessionToken != null) {
+        properties.put(S3Constants.S3A_ACCESS_KEY, config.connection.getAccessID());
+        properties.put(S3Constants.S3A_SECRET_KEY, config.connection.getAccessKey());
+        if (config.connection.getSessionToken() != null) {
           properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
               S3Constants.S3A_TEMP_CREDENTIAL_PROVIDERS);
         } else {
@@ -72,8 +80,8 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
               S3Constants.S3A_SIMPLE_CREDENTIAL_PROVIDERS);
         }
       } else if (config.path.startsWith("s3n://")) {
-        properties.put(S3Constants.S3N_ACCESS_KEY, config.accessID);
-        properties.put(S3Constants.S3N_SECRET_KEY, config.accessKey);
+        properties.put(S3Constants.S3N_ACCESS_KEY, config.connection.getAccessID());
+        properties.put(S3Constants.S3N_SECRET_KEY, config.connection.getAccessKey());
       }
     }
 
@@ -102,9 +110,8 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
    */
   @SuppressWarnings("unused")
   public static class S3BatchSinkConfig extends AbstractFileSinkConfig {
-    private static final String NAME_ACCESS_ID = "accessID";
-    private static final String NAME_ACCESS_KEY = "accessKey";
-    private static final String NAME_SESSION_TOKEN = "sessionToken";
+    public static final String NAME_USE_CONNECTION = "useConnection";
+    public static final String NAME_CONNECTION = "connection";
     private static final String NAME_PATH = "path";
     private static final String NAME_AUTH_METHOD = "authenticationMethod";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
@@ -117,26 +124,16 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
       "S3AFileSystem or 's3n://logs' for S3NativeFileSystem.")
     private String path;
 
-    @Macro
+    @Name(ConfigUtil.NAME_USE_CONNECTION)
     @Nullable
-    @Description("Access ID of the Amazon S3 instance to connect to.")
-    private String accessID;
+    @Description("Whether to use an existing connection.")
+    private Boolean useConnection;
 
+    @Name(ConfigUtil.NAME_CONNECTION)
     @Macro
     @Nullable
-    @Description("Access Key of the Amazon S3 instance to connect to.")
-    private String accessKey;
-
-    @Macro
-    @Nullable
-    @Description("Session Token of the Amazon S3 instance to connect to, if this is a temporary credential")
-    private String sessionToken;
-
-    @Macro
-    @Nullable
-    @Description("Authentication method to access S3. " +
-      "Defaults to Access Credentials. URI scheme should be s3a:// or s3n://.")
-    private String authenticationMethod;
+    @Description("The connection to use.")
+    private S3ConnectorConfig connection;
 
     @Macro
     @Nullable
@@ -153,7 +150,6 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
     S3BatchSinkConfig() {
       // Set default value for Nullable properties.
       this.enableEncryption = false;
-      this.authenticationMethod = ACCESS_CREDENTIALS;
       this.fileSystemProperties = GSON.toJson(Collections.emptyMap());
     }
 
@@ -164,14 +160,12 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
     @Override
     public void validate(FailureCollector collector) {
       super.validate(collector);
-      if (ACCESS_CREDENTIALS.equalsIgnoreCase(authenticationMethod)) {
-        if (!containsMacro(NAME_ACCESS_ID) && (accessID == null || accessID.isEmpty())) {
-          collector.addFailure("The Access ID must be specified if authentication method is Access Credentials.", null)
-            .withConfigProperty(NAME_ACCESS_ID).withConfigProperty(NAME_AUTH_METHOD);
-        }
-        if (!containsMacro(NAME_ACCESS_KEY) && (accessKey == null || accessKey.isEmpty())) {
-          collector.addFailure("The Access Key must be specified if authentication method is Access Credentials.", null)
-            .withConfigProperty(NAME_ACCESS_KEY).withConfigProperty(NAME_AUTH_METHOD);
+      ConfigUtil.validateConnection(this, useConnection, connection, collector);
+      if (!containsMacro(ConfigUtil.NAME_CONNECTION)) {
+        if (connection == null) {
+          collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
+        } else {
+          connection.validate(collector);
         }
       }
 
@@ -179,9 +173,10 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
         collector.addFailure("Path must start with s3a:// or s3n://.", null).withConfigProperty(NAME_PATH);
       }
 
-      if (!containsMacro(NAME_PATH) && path.startsWith("s3n://") && !Strings.isNullOrEmpty(sessionToken)) {
+      if (!containsMacro(NAME_PATH) && path.startsWith("s3n://") && connection != null &&
+        !Strings.isNullOrEmpty(connection.getSessionToken())) {
         collector.addFailure("Temporary credentials are only supported for s3a:// paths.", null)
-            .withConfigProperty(NAME_PATH);
+          .withConfigProperty(NAME_PATH);
       }
 
       if (!containsMacro(NAME_FILE_SYSTEM_PROPERTIES)) {
