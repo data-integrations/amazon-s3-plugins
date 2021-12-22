@@ -73,6 +73,10 @@
           "widget-attributes": {
             "placeholder": "Amazon Session Token"
           }
+        },
+        {
+          "widget-type": "hidden",
+          "name": "region"
         }
       ]
     },
@@ -151,6 +155,10 @@
               }
             ]
           }
+        },
+        {
+          "widget-type": "hidden",
+          "name": "writeHeader"
         }
       ]
     }
