@@ -56,8 +56,6 @@ import io.cdap.plugin.common.ReferenceNames;
 import io.cdap.plugin.format.connector.AbstractFileConnector;
 import io.cdap.plugin.format.connector.FileTypeDetector;
 import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +87,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   public S3Connector(S3ConnectorConfig config) {
     super(config);
     this.config = config;
+    initSampleFields(FILE_TYPE, S3BatchSource.S3BatchConfig.class);
   }
 
   @Override
@@ -137,7 +136,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   @Override
   protected void setConnectorSpec(ConnectorSpecRequest request, ConnectorSpec.Builder builder) {
     super.setConnectorSpec(request, builder);
-    Map<String, String> sourceProperties = new HashMap<>();
+    Map<String, String> sourceProperties = new HashMap<>(getAdditionalSpecProperties(request));
     Map<String, String> sinkProperties = new HashMap<>();
     String path = request.getPath();
     String fullPath = getFullPath(path);
@@ -147,8 +146,13 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
     sinkProperties.put(ConfigUtil.NAME_CONNECTION, request.getConnectionWithMacro());
     sourceProperties.put(S3BatchSource.S3BatchConfig.NAME_PATH, fullPath);
     sinkProperties.put(S3BatchSource.S3BatchConfig.NAME_PATH, fullPath);
-    sourceProperties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
-      FileTypeDetector.detectFileType(path)).name().toLowerCase());
+
+    // Only detect format if it has not been set by sample properties
+    if (!sourceProperties.containsKey(S3BatchSource.S3BatchConfig.NAME_FORMAT)) {
+      sourceProperties.put(AbstractFileSourceConfig.NAME_FORMAT, FileTypeDetector.detectFileFormat(
+        FileTypeDetector.detectFileType(path)).name().toLowerCase());
+    }
+
     if (!isRoot(path)) {
       S3Path s3Path = S3Path.from(path);
       String referenceName = ReferenceNames.cleanseReferenceName(s3Path.getBucket() + "." + s3Path.getName());
@@ -214,9 +218,11 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
       if (objectSummaries.isEmpty()) {
         return builder.build();
       }
-      return builder.setTotalCount(1).addEntity(generateFromSummary(objectSummaries.get(0))).build();
+      return builder.setTotalCount(1).addEntity(generateFromSummary(objectSummaries.get(0)))
+        .setSampleProperties(getSampleProperties()).build();
     }
-    return builder.setTotalCount(count).setEntities(entities).build();
+    return builder.setTotalCount(count).setEntities(entities)
+      .setSampleProperties(getSampleProperties()).build();
   }
 
   private BrowseEntity generateFromSummary(S3ObjectSummary summary) {
@@ -235,6 +241,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
       fileType, BrowseEntityPropertyValue.PropertyType.STRING).build());
     entity.canSample(FileTypeDetector.isSampleable(fileType));
     entity.setProperties(properties);
+    addBrowseSampleDefaultValues(entity, name);
     return entity.build();
   }
 
