@@ -283,7 +283,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
     }
 
     if (config.getAccessID() == null || config.getAccessKey() == null) {
-      throw new IllegalArgumentException("Access key and secret key are not provided");
+      throw new IllegalArgumentException("Access ID and Access Key are not provided");
     }
 
     AWSCredentials creds;
