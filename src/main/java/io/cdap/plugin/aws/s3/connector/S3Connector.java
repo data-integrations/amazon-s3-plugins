@@ -60,6 +60,7 @@ import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,8 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   public S3Connector(S3ConnectorConfig config) {
     super(config);
     this.config = config;
-    initSampleFields(FILE_TYPE, S3BatchSource.S3BatchConfig.class);
+    Map<String, String> additionalProperties = Collections.singletonMap(PLUGIN_NAME_PROPERTY_KEY, S3BatchSource.NAME);
+    initSampleFields(FILE_TYPE, S3BatchSource.S3BatchConfig.class, additionalProperties);
   }
 
   @Override
