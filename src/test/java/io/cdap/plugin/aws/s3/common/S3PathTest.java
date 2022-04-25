@@ -29,22 +29,24 @@ public class S3PathTest {
   @Test
   public void testGetPath() {
     S3Path s3Path = S3Path.from("s3n://my-bucket/part1");
-    Assert.assertEquals("s3n://my-bucket/part1", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1", s3Path.getFullPath());
     s3Path = S3Path.from("my-bucket/part1");
-    Assert.assertEquals("s3n://my-bucket/part1", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1", s3Path.getFullPath());
     s3Path = S3Path.from("/my-bucket/part1");
-    Assert.assertEquals("s3n://my-bucket/part1", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1", s3Path.getFullPath());
 
     s3Path = S3Path.from("s3n://my-bucket/part1/part2");
-    Assert.assertEquals("s3n://my-bucket/part1/part2", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1/part2", s3Path.getFullPath());
     s3Path = S3Path.from("my-bucket/part1/part2");
-    Assert.assertEquals("s3n://my-bucket/part1/part2", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1/part2", s3Path.getFullPath());
     s3Path = S3Path.from("/my-bucket/part1/part2");
-    Assert.assertEquals("s3n://my-bucket/part1/part2", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1/part2", s3Path.getFullPath());
     s3Path = S3Path.from("s3n://my-bucket/part1/hello world");
-    Assert.assertEquals("s3n://my-bucket/part1/hello world", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/part1/hello world", s3Path.getFullPath());
     s3Path = S3Path.from("s3n://my-bucket/hello world 1/hello world 2");
-    Assert.assertEquals("s3n://my-bucket/hello world 1/hello world 2", s3Path.getFullPath());
+    Assert.assertEquals("s3a://my-bucket/hello world 1/hello world 2", s3Path.getFullPath());
+    s3Path = S3Path.from("s3a://my-bucket/hello world 1/hello world 2");
+    Assert.assertEquals("s3a://my-bucket/hello world 1/hello world 2", s3Path.getFullPath());
 
     assertFailure(() -> S3Path.from(""));
     assertFailure(() -> S3Path.from("s3n:/abc/"));
