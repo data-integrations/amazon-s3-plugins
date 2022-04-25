@@ -22,11 +22,13 @@ import java.util.regex.Pattern;
 
 /**
  * A path on S3. Contains information about the bucket and file name (if applicable).
- * A path is of the form s3n://bucket/name.
+ * A path is of the form s3a://bucket/name or s3n://bucket/name.
+ * All s3n path will be converted to s3a path
  */
 public class S3Path {
   public static final String ROOT_DIR = "/";
-  public static final String SCHEME = "s3n://";
+  public static final String SCHEME = "s3a://";
+  public static final String OLD_SCHEME = "s3n://";
   private final String fullPath;
   private final String bucket;
   private final String name;
@@ -91,7 +93,7 @@ public class S3Path {
 
     if (path.startsWith(ROOT_DIR)) {
       path = path.substring(1);
-    } else if (path.startsWith(SCHEME)) {
+    } else if (path.startsWith(SCHEME) || path.startsWith(OLD_SCHEME)) {
       path = path.substring(SCHEME.length());
     }
 
