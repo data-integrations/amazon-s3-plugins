@@ -120,7 +120,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
     if (isRoot(path)) {
       return S3Path.SCHEME;
     }
-    return S3Path.from(path).getFullPath().toString();
+    return S3Path.from(path).getFullPath();
   }
 
   @Override
@@ -130,8 +130,8 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
       return properties;
     }
 
-    properties.put(S3Constants.S3N_ACCESS_KEY, config.getAccessID());
-    properties.put(S3Constants.S3N_SECRET_KEY, config.getAccessKey());
+    properties.put(S3Constants.S3A_ACCESS_KEY, config.getAccessID());
+    properties.put(S3Constants.S3A_SECRET_KEY, config.getAccessKey());
     return properties;
   }
 
