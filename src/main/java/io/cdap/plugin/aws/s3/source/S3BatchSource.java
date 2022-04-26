@@ -26,11 +26,13 @@ import io.cdap.cdap.api.annotation.MetadataProperty;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.etl.api.FailureCollector;
+import io.cdap.cdap.etl.api.StageContext;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
 import io.cdap.cdap.etl.api.connector.Connector;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
+import io.cdap.plugin.aws.s3.common.S3Path;
 import io.cdap.plugin.aws.s3.connector.S3Connector;
 import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.LineageRecorder;
@@ -67,18 +69,19 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
 
   @Override
   protected Map<String, String> getFileSystemProperties(BatchSourceContext context) {
+    // when context is null, it is configure time, by that time, it will always use s3n
+    boolean useS3n = context == null ? true : Boolean.valueOf(context.getArguments().get(S3Constants.USE_S3N));
     Map<String, String> properties = new HashMap<>(config.getFilesystemProperties());
     if (config.connection.isAccessCredentials()) {
-      if (config.path.startsWith("s3a://")) {
+      // use s3a credential if path starts with s3n and there is no runtime argument to keep using s3n path
+      if (config.path.startsWith(S3Path.SCHEME) || (config.path.startsWith(S3Path.OLD_SCHEME) && !useS3n)) {
         properties.put(S3Constants.S3A_ACCESS_KEY, config.connection.getAccessID());
         properties.put(S3Constants.S3A_SECRET_KEY, config.connection.getAccessKey());
         if (config.connection.getSessionToken() != null) {
-          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
-              S3Constants.S3A_TEMP_CREDENTIAL_PROVIDERS);
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS, S3Constants.S3A_TEMP_CREDENTIAL_PROVIDERS);
           properties.put(S3Constants.S3A_SESSION_TOKEN, config.connection.getSessionToken());
         } else {
-          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS,
-              S3Constants.S3A_SIMPLE_CREDENTIAL_PROVIDERS);
+          properties.put(S3Constants.S3A_CREDENTIAL_PROVIDERS, S3Constants.S3A_SIMPLE_CREDENTIAL_PROVIDERS);
         }
       } else if (config.path.startsWith("s3n://")) {
         properties.put(S3Constants.S3N_ACCESS_KEY, config.connection.getAccessID());
@@ -122,7 +125,8 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
 
     @Macro
     @Description("Path to file(s) to be read. If a directory is specified, terminate the path name with a '/'. " +
-      "The path must start with s3a:// or s3n://.")
+      "The path must start with s3a:// or s3n://. Path that starts with s3n:// will by default get " +
+      "converted to s3a://. Set runtime arguments \"keep.s3n.scheme\" to \"true\" to keep using s3n scheme.")
     private String path;
 
     @Name(ConfigUtil.NAME_USE_CONNECTION)
@@ -181,7 +185,16 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
 
     @Override
     public String getPath() {
-      return path;
+      return path.startsWith(S3Path.OLD_SCHEME) ? S3Path.SCHEME + path.substring(S3Path.OLD_SCHEME.length()) : path;
+    }
+
+    @Override
+    public String getPath(StageContext context) {
+      if (!path.startsWith(S3Path.OLD_SCHEME)) {
+        return path;
+      }
+      return Boolean.valueOf(context.getArguments().get(S3Constants.USE_S3N)) ? path :
+               S3Path.SCHEME + path.substring(S3Path.OLD_SCHEME.length());
     }
 
     public S3ConnectorConfig getConnection() {
