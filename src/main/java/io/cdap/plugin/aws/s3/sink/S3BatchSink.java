@@ -124,7 +124,7 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
     @Macro
     @Description("The S3 path where the data is stored. Example: 's3a://logs' for " +
       "S3AFileSystem or 's3n://logs' for S3NativeFileSystem. Path that starts with s3n:// will by default get " +
-      "converted to s3a://. Set runtime arguments \"keep.s3n.scheme\" to \"true\" to keep using s3n scheme.")
+      "converted to s3a://.")
     private String path;
 
     @Name(ConfigUtil.NAME_USE_CONNECTION)
