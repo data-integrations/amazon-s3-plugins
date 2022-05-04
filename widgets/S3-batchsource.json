@@ -104,7 +104,7 @@
           "label": "Path",
           "name": "path",
           "widget-attributes": {
-            "placeholder": "s3n://<bucket>/path/to/input"
+            "placeholder": "s3a://<bucket>/path/to/input"
           }
         },
         {
