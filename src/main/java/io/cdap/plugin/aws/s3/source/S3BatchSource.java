@@ -126,7 +126,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Macro
     @Description("Path to file(s) to be read. If a directory is specified, terminate the path name with a '/'. " +
       "The path must start with s3a:// or s3n://. Path that starts with s3n:// will by default get " +
-      "converted to s3a://. Set runtime arguments \"keep.s3n.scheme\" to \"true\" to keep using s3n scheme.")
+      "converted to s3a://.)
     private String path;
 
     @Name(ConfigUtil.NAME_USE_CONNECTION)
