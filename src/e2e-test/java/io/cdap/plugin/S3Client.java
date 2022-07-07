@@ -70,4 +70,8 @@ public class S3Client {
   public static List<S3ObjectSummary> listObjects(String s3Bucket) throws IOException {
     return getS3Client().listObjects(s3Bucket).getObjectSummaries();
   }
+
+  public static String getObject(String bucketName, String key) throws IOException {
+    return getS3Client().getObjectAsString(bucketName, key);
+  }
 }
