@@ -5,6 +5,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import io.cdap.e2e.utils.PluginPropertyUtils;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
@@ -71,7 +72,7 @@ public class S3Client {
     return getS3Client().listObjects(s3Bucket).getObjectSummaries();
   }
 
-  public static String getObject(String bucketName, String key) throws IOException {
-    return getS3Client().getObjectAsString(bucketName, key);
+  public static S3ObjectInputStream getObjectContent(String bucketName, String key) throws IOException {
+    return getS3Client().getObject(bucketName, key).getObjectContent();
   }
 }

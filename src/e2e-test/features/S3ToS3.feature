@@ -38,4 +38,4 @@ Feature: S3 source - Verification of S3 to S3 successful data transfer
     Then Wait till pipeline is in running state
     Then Open and capture logs
     Then Verify the pipeline status is "Succeeded"
-    Then Verify data is transferred to target S3 bucket
+    Then Verify csv data is transferred to target S3 bucket
