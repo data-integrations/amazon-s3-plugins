@@ -45,8 +45,9 @@ public class S3 implements CdfHelper {
       for (S3ObjectSummary s3ObjectSummary : S3Client.listObjects(s3Bucket)) {
         if (s3ObjectSummary.getKey().contains("part")) {
           flag = true;
-          S3ObjectInputStream s3ObjectInputStream = S3Client.getObjectContent(s3Bucket, s3ObjectSummary.getKey());
-          readInputStream(s3ObjectInputStream, lst);
+          try (S3ObjectInputStream inputStream = S3Client.getObjectContent(s3Bucket, s3ObjectSummary.getKey())) {
+            readInputStream(inputStream, lst);
+          }
         }
       }
       if (flag) {
@@ -82,10 +83,11 @@ public class S3 implements CdfHelper {
   }
 
   private void readInputStream(InputStream input, List<String> lst) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-    String line;
-    while ((line = reader.readLine()) != null) {
-      lst.add(line + "\n");
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        lst.add(line + "\n");
+      }
     }
   }
 
