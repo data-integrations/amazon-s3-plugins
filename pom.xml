@@ -85,6 +85,7 @@
   </properties>
 
   <dependencies>
+    <!-- Declare the transitive dependency of cdap-format explicitly to run e2e test  -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
