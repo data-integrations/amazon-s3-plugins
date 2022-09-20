@@ -35,8 +35,10 @@ import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
 import io.cdap.plugin.aws.s3.connector.S3Connector;
+import io.cdap.plugin.common.Asset;
 import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.LineageRecorder;
+import io.cdap.plugin.common.ReferenceNames;
 import io.cdap.plugin.format.plugin.AbstractFileSink;
 import io.cdap.plugin.format.plugin.AbstractFileSinkConfig;
 
@@ -60,10 +62,29 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
   private static final String ACCESS_CREDENTIALS = "Access Credentials";
 
   private final S3BatchSinkConfig config;
+  private Asset asset;
 
   public S3BatchSink(S3BatchSinkConfig config) {
     super(config);
     this.config = config;
+  }
+
+  @Override
+  public void prepareRun(BatchSinkContext context) throws Exception {
+    // create asset for lineage
+    String referenceName = Strings.isNullOrEmpty(config.getReferenceName())
+      ? ReferenceNames.normalizeFqn(config.getPath())
+      : config.getReferenceName();
+    asset = Asset.builder(referenceName)
+      .setFqn(config.getPath().replace(S3Path.SCHEME, "s3://")).build();
+
+    // super is called down here to avoid instantiating the lineage recorder with a null asset
+    super.prepareRun(context);
+  }
+
+  @Override
+  protected LineageRecorder getLineageRecorder(BatchSinkContext context) {
+    return new LineageRecorder(context, asset);
   }
 
   @Override
