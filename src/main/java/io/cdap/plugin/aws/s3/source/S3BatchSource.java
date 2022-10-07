@@ -34,13 +34,13 @@ import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
 import io.cdap.plugin.aws.s3.connector.S3Connector;
+import io.cdap.plugin.common.Asset;
 import io.cdap.plugin.common.ConfigUtil;
 import io.cdap.plugin.common.LineageRecorder;
+import io.cdap.plugin.common.ReferenceNames;
 import io.cdap.plugin.format.input.PathTrackingInputFormat;
 import io.cdap.plugin.format.plugin.AbstractFileSource;
 import io.cdap.plugin.format.plugin.AbstractFileSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -58,6 +58,7 @@ import javax.annotation.Nullable;
 @Metadata(properties = {@MetadataProperty(key = Connector.PLUGIN_TYPE, value = S3Connector.NAME)})
 public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfig> {
   public static final String NAME = "S3";
+  private Asset asset;
 
   @SuppressWarnings("unused")
   private final S3BatchConfig config;
@@ -65,6 +66,24 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
   public S3BatchSource(S3BatchConfig config) {
     super(config);
     this.config = config;
+  }
+
+  @Override
+  public void prepareRun(BatchSourceContext context) throws Exception {
+    // create asset for lineage
+    String referenceName = Strings.isNullOrEmpty(config.getReferenceName())
+      ? ReferenceNames.normalizeFqn(config.getPath())
+      : config.getReferenceName();
+    asset = Asset.builder(referenceName)
+      .setFqn(config.getPath().replace(S3Path.SCHEME, "s3://")).build();
+
+    // super is called down here to avoid instantiating the lineage recorder with a null asset
+    super.prepareRun(context);
+  }
+
+  @Override
+  protected LineageRecorder getLineageRecorder(BatchSourceContext context) {
+    return new LineageRecorder(context, asset);
   }
 
   @Override

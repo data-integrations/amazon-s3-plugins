@@ -103,6 +103,23 @@ public class S3PathTest {
     }
   }
 
+  @Test
+  public void testFqn() {
+    S3Path s3Path = S3Path.from("s3n://my-bucket/part1");
+    Assert.assertEquals("s3://my-bucket/part1", s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+    s3Path = S3Path.from("my-bucket/part1");
+    Assert.assertEquals("s3://my-bucket/part1", s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+    s3Path = S3Path.from("s3n://my-bucket/part1/part2");
+    Assert.assertEquals("s3://my-bucket/part1/part2", s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+    s3Path = S3Path.from("my-bucket/part1/part2");
+    Assert.assertEquals("s3://my-bucket/part1/part2", s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+    s3Path = S3Path.from("s3n://my-bucket/part1/hello world");
+    Assert.assertEquals("s3://my-bucket/part1/hello world", s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+    s3Path = S3Path.from("s3a://my-bucket/hello world 1/hello world 2");
+    Assert.assertEquals("s3://my-bucket/hello world 1/hello world 2",
+                        s3Path.getFullPath().replace(S3Path.SCHEME, "s3://"));
+  }
+
   private void assertFailure(Runnable runnable) {
     try {
       runnable.run();
