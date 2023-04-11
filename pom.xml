@@ -6,7 +6,7 @@
 
   <groupId>io.cdap.plugin</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.19.0-SNAPSHOT</version>
+  <version>1.19.0</version>
   <description>Plugins for Amazon S3</description>
   <url>https://github.com/data-integrations/amazon-s3-plugins</url>
 
@@ -75,8 +75,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cdap.version>6.9.0-SNAPSHOT</cdap.version>
-    <cdap.plugin.version>2.11.0-SNAPSHOT</cdap.plugin.version>
+    <cdap.version>6.9.0</cdap.version>
+    <cdap.plugin.version>2.11.0</cdap.plugin.version>
     <data.pipeline.parent>system:cdap-data-pipeline[6.8.0-SNAPSHOT, 7.0.0-SNAPSHOT)</data.pipeline.parent>
     <data.stream.parent>system:cdap-data-streams[6.8.0-SNAPSHOT, 7.0.0-SNAPSHOT)</data.stream.parent>
     <hadoop.version>2.10.2</hadoop.version>
@@ -484,7 +484,7 @@
         <dependency>
           <groupId>io.cdap.tests.e2e</groupId>
           <artifactId>cdap-e2e-framework</artifactId>
-          <version>0.2.0-SNAPSHOT</version>
+          <version>0.2.0</version>
           <scope>test</scope>
         </dependency>
         <dependency>
