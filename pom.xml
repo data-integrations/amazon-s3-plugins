@@ -80,7 +80,7 @@
     <data.pipeline.parent>system:cdap-data-pipeline[6.8.0, 7.0.0-SNAPSHOT)</data.pipeline.parent>
     <data.stream.parent>system:cdap-data-streams[6.8.0, 7.0.0-SNAPSHOT)</data.stream.parent>
     <hadoop.version>2.10.2</hadoop.version>
-    <aws.sdk.version>1.11.133</aws.sdk.version>
+    <aws.sdk.version>1.12.261</aws.sdk.version>
     <main.basedir>${project.basedir}</main.basedir>
   </properties>
 
