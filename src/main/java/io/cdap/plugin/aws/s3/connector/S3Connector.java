@@ -95,7 +95,7 @@ public class S3Connector extends AbstractFileConnector<S3ConnectorConfig> {
   @Override
   public void test(ConnectorContext connectorContext) throws ValidationException {
     FailureCollector failureCollector = connectorContext.getFailureCollector();
-    config.validate(failureCollector);
+    config.validate(failureCollector, false);
     // if there is any problem here, that means the credentials are not given so no need to continue
     if (!failureCollector.getValidationFailures().isEmpty()) {
       return;

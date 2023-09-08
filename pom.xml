@@ -6,7 +6,7 @@
 
   <groupId>io.cdap.plugin</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.17.3</version>
+  <version>1.17.4-SNAPSHOT</version>
   <description>Plugins for Amazon S3</description>
   <url>https://github.com/data-integrations/amazon-s3-plugins</url>
 
@@ -235,9 +235,15 @@
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>${aws.sdk.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sts</artifactId>
+      <version>${aws.sdk.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>

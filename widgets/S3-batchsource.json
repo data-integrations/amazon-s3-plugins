@@ -262,6 +262,25 @@
           }
         },
         {
+          "widget-type": "radio-group",
+          "label": "Verify Credentials",
+          "name": "verifyCredentials",
+          "widget-attributes": {
+            "layout": "inline",
+            "default": "false",
+            "options": [
+              {
+                "id": "true",
+                "label": "True"
+              },
+              {
+                "id": "false",
+                "label": "False"
+              }
+            ]
+          }
+        },
+        {
           "widget-type": "json-editor",
           "label": "File System Properties",
           "name": "fileSystemProperties"

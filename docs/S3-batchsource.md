@@ -62,6 +62,10 @@ The default value is false.
 **Allow Empty Input:** Whether to allow an input path that contains no data. When set to false, the plugin
 will error when there is no data to read. When set to true, no error will be thrown and zero records will be read.
 
+**Verify Credentials:** Whether to verify the access credentials. When false, validation will succeed even if the 
+credentials are incorrect. When true, the accuracy of the credentials will be evaluated and validation will fail, if 
+credentials are incorrect. The default value is false.
+
 **File System Properties:** Additional properties to use with the InputFormat when reading the data.
 
 **File Encoding:** The character encoding for the file(s) to be read. The default encoding is UTF-8.

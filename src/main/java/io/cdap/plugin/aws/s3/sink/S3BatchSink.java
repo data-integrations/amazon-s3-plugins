@@ -168,7 +168,7 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
         if (connection == null) {
           collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
         } else {
-          connection.validate(collector);
+          connection.validate(collector, false);
         }
       }
 

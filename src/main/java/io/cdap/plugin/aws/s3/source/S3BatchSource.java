@@ -116,6 +116,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
    */
   @SuppressWarnings("unused")
   public static class S3BatchConfig extends AbstractFileSourceConfig {
+    private static final Logger LOG = LoggerFactory.getLogger(S3BatchConfig.class);
     public static final String NAME_PATH = "path";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
     private static final String NAME_DELIMITER = "delimiter";
@@ -145,6 +146,21 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     @Description("Any additional properties to use when reading from the filesystem. " +
       "This is an advanced feature that requires knowledge of the properties supported by the underlying filesystem.")
     private String fileSystemProperties;
+    
+    @Nullable
+    @Description("Whether to verify the access credentials. When false, validation will succeed even if the " +
+      "credentials are incorrect. When true, the accuracy of the credentials will be evaluated and validation will " +
+      "fail, if credentials are incorrect. The default value is false.")
+    private Boolean verifyCredentials;
+
+    private S3BatchConfig(String path, @Nullable S3ConnectorConfig connection, String fileSystemProperties,
+                          Boolean verifyCredentials) {
+      super();
+      this.path = path;
+      this.connection = connection;
+      this.fileSystemProperties = fileSystemProperties;
+      this.verifyCredentials = verifyCredentials;
+    }
 
     public S3BatchConfig() {
       fileSystemProperties = GSON.toJson(Collections.emptyMap());
@@ -163,7 +179,7 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
         if (connection == null) {
           collector.addFailure("Connection credentials is not provided", "Please provide valid credentials");
         } else {
-          connection.validate(collector);
+          connection.validate(collector, shouldVerifyCredentials());
         }
       }
       if (!containsMacro("path") && (!path.startsWith("s3a://") && !path.startsWith("s3n://"))) {
@@ -207,6 +223,45 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
         return properties;
       }
       return GSON.fromJson(fileSystemProperties, MAP_STRING_STRING_TYPE);
+    }
+
+    public boolean shouldVerifyCredentials() {
+      return verifyCredentials == null ? false : verifyCredentials;
+    }
+
+    /**
+     * S3 Batch Source configuration builder.
+     */
+    public static class Builder {
+      private String path;
+      private S3ConnectorConfig connection;
+      private String fileSystemProperties;
+      private Boolean verifyCredentials;
+
+      public Builder setPath(String path) {
+        this.path = path;
+        return this;
+      }
+
+      public Builder setConnection(@Nullable S3ConnectorConfig connection) {
+        this.connection = connection;
+        return this;
+      }
+
+      public Builder setFileSystemProperties(@Nullable String fileSystemProperties) {
+        this.fileSystemProperties = fileSystemProperties;
+        return this;
+      }
+      
+      public Builder setVerifyCredentials(Boolean verifyCredentials) {
+        this.verifyCredentials = verifyCredentials;
+        return this;
+      }
+      
+      public S3BatchSource.S3BatchConfig build() {
+        return new S3BatchSource.S3BatchConfig(path, connection, fileSystemProperties, verifyCredentials);
+      }
+
     }
   }
 }
