@@ -257,6 +257,12 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>${commons.logging.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>    
     </dependency>
     <!--    Conflict arose from hadoop-common.
     Added version 4.5.14 to resolve conflicts.-->
