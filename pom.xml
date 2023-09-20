@@ -80,7 +80,9 @@
     <data.pipeline.parent>system:cdap-data-pipeline[6.8.0, 7.0.0-SNAPSHOT)</data.pipeline.parent>
     <data.stream.parent>system:cdap-data-streams[6.8.0, 7.0.0-SNAPSHOT)</data.stream.parent>
     <hadoop.version>2.10.2</hadoop.version>
-    <aws.sdk.version>1.11.133</aws.sdk.version>
+    <aws.sdk.version>1.12.552</aws.sdk.version>
+    <commons.logging.version>1.1.1</commons.logging.version>
+    <httpclient.version>4.5.14</httpclient.version>
     <main.basedir>${project.basedir}</main.basedir>
   </properties>
 
@@ -250,15 +252,19 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${commons.logging.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>${aws.sdk.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
@@ -278,7 +284,7 @@
         <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.5.4</version>
+          <version>3.5.0</version>
           <extensions>true</extensions>
           <configuration>
             <instructions>
