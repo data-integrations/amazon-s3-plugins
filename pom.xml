@@ -276,10 +276,15 @@
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>${aws.sdk.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sts</artifactId>
+      <version>${aws.sdk.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
-    <testSourceDirectory>${testSourceLocation}</testSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
