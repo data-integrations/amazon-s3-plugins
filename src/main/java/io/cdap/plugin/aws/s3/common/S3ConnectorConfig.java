@@ -17,6 +17,16 @@
 
 package io.cdap.plugin.aws.s3.common;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
+import com.amazonaws.services.securitytoken.model.AWSSecurityTokenServiceException;
+import com.amazonaws.services.securitytoken.model.GetCallerIdentityRequest;
+import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.plugin.PluginConfig;
@@ -31,6 +41,7 @@ public class S3ConnectorConfig extends PluginConfig {
   public static final String ACCESS_CREDENTIALS = "Access Credentials";
   public static final String NAME_ACCESS_ID = "accessID";
   public static final String NAME_ACCESS_KEY = "accessKey";
+  public static final String NAME_SESSION_TOKEN = "sessionToken";
   public static final String NAME_AUTH_METHOD = "authenticationMethod";
   public static final String NAME_REGION = "region";
 
@@ -105,7 +116,7 @@ public class S3ConnectorConfig extends PluginConfig {
     return ACCESS_CREDENTIALS.equalsIgnoreCase(authenticationMethod);
   }
 
-  public void validate(FailureCollector collector) {
+  public void validate(FailureCollector collector, Boolean verifyCredentials) {
     if (containsMacro(NAME_AUTH_METHOD)) {
       return;
     }
@@ -117,10 +128,41 @@ public class S3ConnectorConfig extends PluginConfig {
     if (!containsMacro("accessID") && (accessID == null || accessID.isEmpty())) {
       collector.addFailure("The Access ID must be specified if authentication method is Access Credentials.", null)
         .withConfigProperty(NAME_ACCESS_ID).withConfigProperty(NAME_AUTH_METHOD);
+      return;
     }
     if (!containsMacro("accessKey") && (accessKey == null || accessKey.isEmpty())) {
       collector.addFailure("The Access Key must be specified if authentication method is Access Credentials.", null)
         .withConfigProperty(NAME_ACCESS_KEY).withConfigProperty(NAME_AUTH_METHOD);
+      return;
     }
+    if (verifyCredentials && !containsMacro(NAME_ACCESS_ID) && !containsMacro(NAME_ACCESS_KEY) &&
+      !containsMacro(NAME_SESSION_TOKEN)) {
+      validateCredentials(collector);
+    }
+  }
+
+  private void validateCredentials(FailureCollector collector) {
+    AWSSecurityTokenService stsClient = getSTSClient(Regions.DEFAULT_REGION.getName());
+    try {
+      stsClient.getCallerIdentity(new GetCallerIdentityRequest());
+    } catch (AWSSecurityTokenServiceException exception) {
+      collector.addFailure(String.format("Invalid credentials: %s.", exception.getMessage()),
+                           "Please provide valid credentials.");
+    }
+  }
+
+  private AWSSecurityTokenService getSTSClient(String region) {
+    AWSSecurityTokenServiceClientBuilder builder = AWSSecurityTokenServiceClientBuilder.standard();
+    if (!Strings.isNullOrEmpty(region)) {
+      builder.setRegion(region);
+    }
+    AWSCredentials creds;
+    if (getSessionToken() == null) {
+      creds = new BasicAWSCredentials(getAccessID(), getAccessKey());
+    } else {
+      creds = new BasicSessionCredentials(getAccessID(), getAccessKey(), getSessionToken());
+    }
+    return builder.withCredentials(new AWSStaticCredentialsProvider(creds))
+      .build();
   }
 }
