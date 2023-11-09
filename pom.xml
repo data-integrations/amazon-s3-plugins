@@ -84,6 +84,7 @@
     <commons.logging.version>1.1.3</commons.logging.version>
     <httpclient.version>4.5.14</httpclient.version>
     <main.basedir>${project.basedir}</main.basedir>
+    <testSourceLocation>${project.basedir}/src/test/java/</testSourceLocation>
   </properties>
 
   <dependencies>
@@ -284,7 +285,7 @@
   </dependencies>
 
   <build>
-    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testSourceDirectory>${testSourceLocation}</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -408,6 +409,7 @@
       <id>e2e-tests</id>
       <properties>
         <testSourceLocation>src/e2e-test/java</testSourceLocation>
+        <TEST_RUNNER>TestRunner.java</TEST_RUNNER>
       </properties>
       <build>
         <testResources>
@@ -444,6 +446,7 @@
               <execution>
                 <goals>
                   <goal>integration-test</goal>
+                  <goal>verify</goal>
                 </goals>
               </execution>
             </executions>
@@ -501,23 +504,44 @@
         </plugins>
       </build>
 
+
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.7</version>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+
       <dependencies>
+        <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+          <version>4.1.100.Final</version>
+          <scope>test</scope>
+        </dependency>
         <dependency>
           <groupId>io.cdap.tests.e2e</groupId>
           <artifactId>cdap-e2e-framework</artifactId>
-          <version>0.2.0-SNAPSHOT</version>
+          <version>0.4.0-SNAPSHOT</version>
           <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>ch.qos.logback</groupId>
           <artifactId>logback-classic</artifactId>
           <version>1.2.8</version>
-          <scope>runtime</scope>
-        </dependency>
-        <dependency>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-          <version>27.0.1-jre</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

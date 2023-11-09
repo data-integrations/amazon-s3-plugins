@@ -57,4 +57,4 @@ jobs:
         with:
           # GITHUB_TOKEN
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit: ${{ github.event.workflow_run.head_branch }}
+          commit: ${{ github.event.workflow_run.head_sha }}
