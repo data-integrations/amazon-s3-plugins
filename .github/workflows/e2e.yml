@@ -1,4 +1,4 @@
-# Copyright © 2021 Cask Data, Inc.
+# Copyright © 2023 Cask Data, Inc.
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
@@ -12,7 +12,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 # Note: Any changes to this workflow would be used only after merging into develop
-name: Build with unit tests
+name: Build e2e tests
 
 on:
   workflow_run:
@@ -23,7 +23,7 @@ on:
 
 jobs:
   build:
-    runs-on: k8s-runner-build
+    runs-on: k8s-runner-e2e
 
     if: ${{ github.event.workflow_run.conclusion != 'skipped' }}
 
@@ -32,7 +32,15 @@ jobs:
       - uses: marocchino/action-workflow_run-status@54b6e87d6cb552fc5f36dbe9a722a6048725917a
       - uses: actions/checkout@v3
         with:
+          path: plugin
           ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Checkout e2e test repo
+        uses: actions/checkout@v3
+        with:
+          repository: cdapio/cdap-e2e-tests
+          path: e2e
+
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -40,21 +48,36 @@ jobs:
           key: ${{ runner.os }}-maven-${{ github.workflow }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-${{ github.workflow }}
-      - name: Build with Maven
-        run: mvn clean test -fae -T 2 -B -V -DcloudBuild -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
-      - name: Archive build artifacts
+
+      - name: Run tests
+        run: python3 e2e/src/main/scripts/run_e2e_test.py
+
+      - name: Upload report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Build debug files
-          path: |
-            **/target/rat.txt
-            **/target/surefire-reports/*
-      - name: Surefire Report
-        # Pinned 1.0.5 version
-        uses: ScaCap/action-surefire-report@ad808943e6bfbd2e6acba7c53fdb5c89534da533
+          name: Cucumber report
+          path: ./plugin/target/cucumber-reports
+
+      - name: Upload debug files
+        uses: actions/upload-artifact@v3
         if: always()
         with:
-          # GITHUB_TOKEN
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit: ${{ github.event.workflow_run.head_branch }}
+          name: Debug files
+          path: ./**/target/e2e-debug
+
+      - name: Upload reports to GCS
+        uses: google-github-actions/upload-cloud-storage@v0
+        if: always()
+        with:
+          path: ./plugin/target/cucumber-reports
+          destination: e2e-tests-cucumber-reports/${{ github.event.repository.name }}/${{ github.ref }}
+
+      - name: github-status-action
+        uses: Sibz/github-status-action@67af1f4042a5a790681aad83c44008ca6cfab83d
+        if: always()
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+          context: Cucumber report
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
