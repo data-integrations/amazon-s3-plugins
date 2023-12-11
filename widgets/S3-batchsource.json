@@ -120,7 +120,8 @@
               "json",
               "parquet",
               "text",
-              "tsv"
+              "tsv",
+              "xls"
             ],
             "default": "text"
           },
@@ -133,6 +134,36 @@
             ],
             "missing-required-fields-message": "Please provide path field",
             "plugin-method": "getSchema"
+          }
+        },
+        {
+          "widget-type": "number",
+          "label": "Sample Size",
+          "name": "sampleSize",
+          "widget-attributes": {
+            "default": "1000",
+            "minimum": "1"
+          }
+        },
+        {
+          "widget-type": "keyvalue-dropdown",
+          "label": "Override",
+          "name": "override",
+          "widget-attributes": {
+            "key-placeholder": "Field Name",
+            "value-placeholder": "Data Type",
+            "dropdownOptions": [
+              "boolean",
+              "bytes",
+              "double",
+              "float",
+              "int",
+              "long",
+              "string",
+              "date",
+              "time",
+              "timestamp"
+            ]
           }
         },
         {
@@ -173,6 +204,42 @@
               "value": "false",
               "label": "False"
             }
+          }
+        },
+        {
+          "widget-type": "toggle",
+          "label": "Terminate If Empty Row",
+          "name": "terminateIfEmptyRow",
+          "widget-attributes": {
+            "default": "false",
+            "on": {
+              "value": "true",
+              "label": "True"
+            },
+            "off": {
+              "value": "false",
+              "label": "False"
+            }
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Select Sheet Using",
+          "name": "sheet",
+          "widget-attributes": {
+            "values": [
+              "Sheet Name",
+              "Sheet Number"
+            ],
+            "default": "Sheet Number"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Sheet Value",
+          "name": "sheetValue",
+          "widget-attributes": {
+            "default": "0"
           }
         }
       ]
@@ -674,11 +741,44 @@
     {
       "name": "skipHeader",
       "condition": {
-        "expression": "format == 'delimited' || format == 'csv' || format == 'tsv'"
+        "expression": "format == 'delimited' || format == 'csv' || format == 'tsv' || format == 'xls'"
       },
       "show": [
         {
           "name": "skipHeader"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "condition": {
+        "expression": "format == 'xls'"
+      },
+      "show": [
+        {
+          "name": "sheet"
+        }
+      ]
+    },
+    {
+      "name": "sheetValue",
+      "condition": {
+        "expression": "format == 'xls'"
+      },
+      "show": [
+        {
+          "name": "sheetValue"
+        }
+      ]
+    },
+    {
+      "name": "terminateIfEmptyRow",
+      "condition": {
+        "expression": "format == 'xls'"
+      },
+      "show": [
+        {
+          "name": "terminateIfEmptyRow"
         }
       ]
     }
