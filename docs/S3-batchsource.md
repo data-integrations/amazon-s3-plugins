@@ -19,14 +19,27 @@ the credentials does not need to be provided.
 **Path:** Path to read from. For example, s3a://<bucket>/path/to/input
 
 **Format:** Format of the data to read.
-The format must be one of 'avro', 'blob', 'csv', 'delimited', 'json', 'parquet', 'text', or 'tsv'.
+The format must be one of 'avro', 'blob', 'csv', 'delimited', 'json', 'parquet', 'text', 'tsv' or 'xls'.
 If the format is 'blob', every input file will be read into a separate record.
 The 'blob' format also requires a schema that contains a field named 'body' of type 'bytes'.
 If the format is 'text', the schema must contain a field named 'body' of type 'string'.
 
+**Sample Size:** The maximum number of rows that will get investigated for automatic data type detection.
+The default value is 1000.
+
+**Override:** A list of columns with the corresponding data types for whom the automatic data type detection gets
+skipped.
+
+**Terminate If Empty Row:** Specify whether to stop reading after encountering the first empty row. Defaults to false.
+
+**Select Sheet Using:** Select the sheet by name or number. Default is 'Sheet Number'.
+
+**Sheet Value:** The name/number of the sheet to read from. If not specified, the first sheet will be read.
+Sheet Number are 0 based, ie first sheet is 0.
+
 **Delimiter:** Delimiter to use when the format is 'delimited'. This will be ignored for other formats.
 
-**Use First Row as Header:** Whether to use first row as header. Supported formats are 'text', 'csv', 'tsv', 'delimited'.
+**Use First Row as Header:** Whether to use first row as header. Supported formats are 'text', 'csv', 'tsv', 'delimited', 'xls'.
 
 **Authentication Method:** Authentication method to access S3. The default value is Access Credentials.
 IAM can only be used if the plugin is run in an AWS environment, such as on EMR.

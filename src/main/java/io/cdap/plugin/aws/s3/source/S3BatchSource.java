@@ -141,6 +141,9 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
     public static final String NAME_PATH = "path";
     private static final String NAME_FILE_SYSTEM_PROPERTIES = "fileSystemProperties";
     private static final String NAME_DELIMITER = "delimiter";
+    private static final String NAME_SHEET = "sheet";
+    private static final String NAME_SHEET_VALUE = "sheetValue";
+    private static final String NAME_TERMINATE_IF_EMPTY_ROW = "terminateIfEmptyRow";
 
     private static final Gson GSON = new Gson();
     private static final Type MAP_STRING_STRING_TYPE = new TypeToken<Map<String, String>>() { }.getType();
@@ -173,6 +176,36 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       "credentials are incorrect. When true, the accuracy of the credentials will be evaluated and validation will " +
       "fail, if credentials are incorrect. The default value is false.")
     private Boolean verifyCredentials;
+
+    @Macro
+    @Nullable
+    @Description("The maximum number of rows that will get investigated for automatic data type detection.")
+    private Long sampleSize;
+
+    @Macro
+    @Nullable
+    @Description("A list of columns with the corresponding data types for whom the automatic data type detection gets" +
+            " skipped.")
+    private String override;
+
+    @Name(NAME_SHEET)
+    @Macro
+    @Nullable
+    @Description("Select the sheet by name or number. Default is 'Sheet Number'.")
+    private String sheet;
+
+    @Name(NAME_SHEET_VALUE)
+    @Macro
+    @Nullable
+    @Description("The name/number of the sheet to read from. If not specified, the first sheet will be read." +
+            "Sheet Number are 0 based, ie first sheet is 0.")
+    private String sheetValue;
+
+    @Name(NAME_TERMINATE_IF_EMPTY_ROW)
+    @Macro
+    @Nullable
+    @Description("Specify whether to stop reading after encountering the first empty row. Defaults to false.")
+    private String terminateIfEmptyRow;
 
     private S3BatchConfig(String path, @Nullable S3ConnectorConfig connection, String fileSystemProperties,
                           Boolean verifyCredentials) {
