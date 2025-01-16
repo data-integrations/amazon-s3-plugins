@@ -85,9 +85,15 @@
     <httpclient.version>4.5.14</httpclient.version>
     <main.basedir>${project.basedir}</main.basedir>
     <testSourceLocation>${project.basedir}/src/test/java/</testSourceLocation>
+    <jackson.databind.version>2.13.4.2</jackson.databind.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.databind.version}</version>
+    </dependency>
     <!-- Declare the transitive dependency of cdap-format explicitly to run e2e test  -->
     <dependency>
       <groupId>com.google.guava</groupId>
