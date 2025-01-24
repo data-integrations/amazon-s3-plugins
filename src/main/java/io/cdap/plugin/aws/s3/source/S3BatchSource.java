@@ -30,6 +30,8 @@ import io.cdap.cdap.etl.api.StageContext;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
 import io.cdap.cdap.etl.api.connector.Connector;
+import io.cdap.cdap.etl.api.exception.ErrorDetailsProviderSpec;
+import io.cdap.plugin.aws.s3.common.AmazonErrorDetailsProvider;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3EmptyInputFormat;
@@ -84,6 +86,10 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
       : config.getReferenceName();
     asset = Asset.builder(referenceName)
       .setFqn(config.getPath().replace(S3Path.SCHEME, "s3://")).build();
+
+    // set error details provider
+    context.setErrorDetailsProvider(
+        new ErrorDetailsProviderSpec(AmazonErrorDetailsProvider.class.getName()));
 
     // super is called down here to avoid instantiating the lineage recorder with a null asset
     super.prepareRun(context);
@@ -220,8 +226,9 @@ public class S3BatchSource extends AbstractFileSource<S3BatchSource.S3BatchConfi
         try {
           getFilesystemProperties();
         } catch (Exception e) {
-          collector.addFailure("File system properties must be a valid json.", null)
-            .withConfigProperty(NAME_FILE_SYSTEM_PROPERTIES).withStacktrace(e.getStackTrace());
+          collector.addFailure(String.format("File system properties must be a valid json, %s: %s",
+                  e.getClass().getName(), e.getMessage()), null)
+              .withConfigProperty(NAME_FILE_SYSTEM_PROPERTIES).withStacktrace(e.getStackTrace());
         }
       }
     }
