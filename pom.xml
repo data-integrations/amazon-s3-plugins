@@ -279,6 +279,17 @@
       <version>${httpclient.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-aws</artifactId>
+      <version>${hadoop.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws</groupId>
+          <artifactId>aws-java-sdk-bundle</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>${aws.sdk.version}</version>
@@ -287,6 +298,11 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-sts</artifactId>
       <version>${aws.sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.12.0</version>
     </dependency>
   </dependencies>
 
@@ -310,7 +326,11 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <_exportcontents>io.cdap.plugin.aws.s3.*</_exportcontents>
+              <_exportcontents>
+                io.cdap.plugin.aws.s3.*;
+                org.apache.hadoop.fs.s3a.*;
+                org.apache.hadoop.fs.s3native.*;
+              </_exportcontents>
               <Embed-Dependency>*;inline=false;scope=compile</Embed-Dependency>
               <Embed-Transitive>true</Embed-Transitive>
               <Embed-Directory>lib</Embed-Directory>
@@ -492,7 +512,11 @@
             <extensions>true</extensions>
             <configuration>
               <instructions>
-                <_exportcontents>io.cdap.plugin.aws.s3.*</_exportcontents>
+                <_exportcontents>
+                  io.cdap.plugin.aws.s3.*;
+                  org.apache.hadoop.fs.s3a.*;
+                  org.apache.hadoop.fs.s3native.*;
+                </_exportcontents>
                 <Embed-Dependency>*;inline=false;scope=compile</Embed-Dependency>
                 <Embed-Transitive>true</Embed-Transitive>
                 <Embed-Directory>lib</Embed-Directory>
