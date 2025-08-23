@@ -31,6 +31,7 @@ import io.cdap.cdap.etl.api.StageContext;
 import io.cdap.cdap.etl.api.batch.BatchSink;
 import io.cdap.cdap.etl.api.batch.BatchSinkContext;
 import io.cdap.cdap.etl.api.connector.Connector;
+import io.cdap.plugin.aws.s3.common.AmazonErrorDetailsProvider;
 import io.cdap.plugin.aws.s3.common.S3ConnectorConfig;
 import io.cdap.plugin.aws.s3.common.S3Constants;
 import io.cdap.plugin.aws.s3.common.S3Path;
@@ -85,6 +86,11 @@ public class S3BatchSink extends AbstractFileSink<S3BatchSink.S3BatchSinkConfig>
   @Override
   protected LineageRecorder getLineageRecorder(BatchSinkContext context) {
     return new LineageRecorder(context, asset);
+  }
+
+  @Override
+  protected String getErrorDetailsProviderClassName() {
+    return AmazonErrorDetailsProvider.class.getName();
   }
 
   @Override
