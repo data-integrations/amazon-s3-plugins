@@ -6,7 +6,7 @@
 
   <groupId>io.cdap.plugin</groupId>
   <artifactId>amazon-s3-plugins</artifactId>
-  <version>1.21.1</version>
+  <version>1.21.2-SNAPSHOT</version>
   <description>Plugins for Amazon S3</description>
   <url>https://github.com/data-integrations/amazon-s3-plugins</url>
   <name>Amazon S3 Plugins</name>
@@ -67,10 +67,16 @@
     <main.basedir>${project.basedir}</main.basedir>
     <testSourceLocation>${project.basedir}/src/test/java/</testSourceLocation>
     <jackson.version>2.23.0</jackson.version>
+    <guava.version>33.8.0-jre</guava.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
@@ -90,7 +96,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>13.0.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -585,11 +590,6 @@
 
       <dependencyManagement>
         <dependencies>
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
-          </dependency>
           <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
